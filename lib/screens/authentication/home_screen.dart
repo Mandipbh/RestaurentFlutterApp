@@ -1,31 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:restaurent/screens/order_food/order_food.dart';
 
 class HomeScreen extends StatelessWidget {
-  final _supabase = Supabase.instance.client;
-
-  // ✅ Logout
-  Future<void> logout() async {
-    await _supabase.auth.signOut();
-    print('Logged out successfully');
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = _supabase.auth.currentUser;
-
     return Scaffold(
-      appBar: AppBar(title: Text('Home'), actions: [
-        IconButton(
-          icon: Icon(Icons.logout),
-          onPressed: () {
-            logout();
-            Navigator.pop(context);
-          },
-        )
-      ]),
-      body: Center(
-        child: Text('Welcome, ${user?.phone ?? 'User'}!'),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ✅ Background Image
+          Image.asset(
+            'assets/select_category/order_food_background.jpg', // Replace with your image path
+            fit: BoxFit.cover,
+          ),
+
+          // ✅ Overlay for text
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.1),
+                  Colors.black.withOpacity(0.7),
+                ],
+              ),
+            ),
+          ),
+
+          // ✅ Centered Text & Icon with GestureDetector
+          Positioned(
+            bottom: 50,
+            left: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to the Food Menu Screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OrderFood()),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "ORDER FOOD",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "We'll deliver it right to your door",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
