@@ -12,7 +12,7 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController nameController;
   final String labelText;
   final bool isPassword;
-  final String? Function(String?)? validator; // Custom validator function
+  final String? Function(String?)? validator;
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
@@ -20,7 +20,7 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _obscureText = true;
-  String? _errorText; // Holds the error message
+  String? _errorText;
 
   void _validate(String value) {
     setState(() {
@@ -41,10 +41,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
             labelText: widget.labelText,
             labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
             filled: true,
-            fillColor: Color.fromARGB(255, 27, 27, 32), // Background color
-            border: InputBorder.none, // Removes border
-            focusedBorder: InputBorder.none,
-            enabledBorder: InputBorder.none,
+            fillColor: const Color.fromARGB(255, 27, 27, 32),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20), // Rounded corners
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(color: Colors.white, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
@@ -57,11 +67,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       });
                     },
                   )
-                : null, // Only show icon for password fields
+                : null,
           ),
-          onChanged: _validate, // Validate input on change
+          onChanged: _validate,
         ),
-        if (_errorText != null) // Show error message if not null
+        if (_errorText != null)
           Padding(
             padding: const EdgeInsets.only(top: 4, left: 8),
             child: Text(

@@ -1,4 +1,3 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/screens/authentication/login.screen.dart';
@@ -51,18 +50,7 @@ class _AuthScreenState extends State<AuthScreen> {
       MaterialPageRoute(builder: (context) => LoginScreen()),
     );
 
-    // try {
-    //   final response = await supabase.auth.signInWithPassword(
-    //     email: _emailController.text,
-    //     password: _passwordController.text,
-    //   );
 
-    //   if (response.user != null) {
-    //     print('User logged in: ${response.user!.email}');
-    //   }
-    // } catch (e) {
-    //   print('Error: $e');
-    // }
   }
 
   Future<void> insertUserData(
@@ -93,7 +81,7 @@ class _AuthScreenState extends State<AuthScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 80),
+              SizedBox(height: 40),
               Column(
                 children: [
                   CustomText(
@@ -168,12 +156,12 @@ class _AuthScreenState extends State<AuthScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 90),
+              SizedBox(height: 40),
               CustomButton(
                 onPressed: signUp,
                 text: Strings.signin,
               ),
-              SizedBox(height: 130),
+              SizedBox(height: 30),
               Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

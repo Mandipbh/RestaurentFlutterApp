@@ -14,7 +14,7 @@ class Strings {
   static const String phone = 'Phone';
   static const String password = 'Password';
   static const String login = 'Login';
-  static const String signin = 'Sign In';
+  static const String signin = 'Register';
   static const String signupText = 'Create a new account';
   static const String signupDesc = 'Please fill the form to continue';
   static const String haveaccount = 'Have an account ? ';

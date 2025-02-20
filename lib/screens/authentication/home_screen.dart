@@ -8,13 +8,11 @@ class HomeScreen extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // ✅ Background Image
           Image.asset(
-            'assets/select_category/order_food_background.jpg', // Replace with your image path
+            'assets/select_category/order_food_background.jpg',
             fit: BoxFit.cover,
           ),
 
-          // ✅ Overlay for text
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -28,14 +26,12 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // ✅ Centered Text & Icon with GestureDetector
           Positioned(
             bottom: 50,
             left: 0,
             right: 0,
             child: GestureDetector(
               onTap: () {
-                // Navigate to the Food Menu Screen
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => OrderFood()),
@@ -72,6 +68,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+   
     );
   }
 }

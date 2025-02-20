@@ -73,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -147,7 +147,7 @@ class OnboardingPage extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 350,
+          height: 250,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -161,7 +161,7 @@ class OnboardingPage extends StatelessWidget {
                     child: Image.asset(
                       image2,
                       width: 300,
-                      height: 220,
+                      height: 200,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -177,7 +177,7 @@ class OnboardingPage extends StatelessWidget {
                     child: Image.asset(
                       image1,
                       width: 350,
-                      height: 260,
+                      height: 200,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -186,7 +186,7 @@ class OnboardingPage extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 220),
+        SizedBox(height: 150),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
           child: Column(
