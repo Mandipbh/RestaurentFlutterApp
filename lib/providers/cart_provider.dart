@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final cartProvider = StateNotifierProvider<CartNotifier, List<Map<String, dynamic>>>((ref) {
+final cartProvider =
+    StateNotifierProvider<CartNotifier, List<Map<String, dynamic>>>((ref) {
   return CartNotifier();
 });
 
@@ -17,11 +18,26 @@ class CartNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     fetchCart(userId);
   }
 
+  // Future<void> fetchCart(String userId) async {
+  //   final response = await Supabase.instance.client.from('cart')
+  //       .select('*, food_items(*)')
+  //       .eq('user_id', userId);
+  //   state = response;
+  // }
+
   Future<void> fetchCart(String userId) async {
-    final response = await Supabase.instance.client.from('cart')
-        .select('*, food_items(*)')
-        .eq('user_id', userId);
-    state = response;
+    try {
+      final response = await Supabase.instance.client
+          .from('cart')
+          .select('*, food_items(*)')
+          .eq('user_id', userId);
+
+      print("✅ Supabase Response: $response");
+
+      state = List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print("❌ Exception in fetchCart: $e");
+    }
   }
 
   Future<void> removeFromCart(String cartId, String userId) async {

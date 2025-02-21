@@ -1,17 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final supabase = Supabase.instance.client;
-
-
 final authProvider = StateProvider<User?>((ref) {
-  return supabase.auth.currentUser;
+  return Supabase.instance.client.auth.currentUser;
 });
 
-
-
-
-
-final authStateProvider = StreamProvider<AuthState>((ref) {
-  return supabase.auth.onAuthStateChange;
+final authStateProvider = StreamProvider<User?>((ref) {
+  return Supabase.instance.client.auth.onAuthStateChange.map((event) => event.session?.user);
 });
+

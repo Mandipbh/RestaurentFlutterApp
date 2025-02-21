@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurent/providers/auth_provider.dart';
-import 'package:restaurent/screens/order_food/order_food.dart';
 import 'package:restaurent/screens/splash/splash.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,8 +14,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -27,34 +23,7 @@ class MyApp extends StatelessWidget {
     primarySwatch: Colors.blue,
     fontFamily: 'GillSans', 
   ),
-  home: AuthWrapper(),
+  home: Splash(),
 );
-  }
-}
-class AuthWrapper extends ConsumerWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
-
-    return authState.when(
-      data: (state) {
-        if (state.session != null) {
-          return const OrderFood();
-        }
-        return  Splash();
-      },
-      loading: () => const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-      error: (error, stack) => Scaffold(
-        body: Center(
-          child: Text('Error: $error'),
-        ),
-      ),
-    );
   }
 }

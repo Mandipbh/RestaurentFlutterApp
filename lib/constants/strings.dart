@@ -25,6 +25,14 @@ class Strings {
   static const String welcomtext = 'Welcome Back!';
   static const String welcomdesc = 'Please login to your account';
   static const String dontaccount = 'Don\'t have an account ? ';
-  static const String loginerrortext = 'Login Failed: Please check your credentials.';
+  static const String loginerrortext =
+      'Login Failed: Please check your credentials.';
   static const String loginsuccess = 'Login Successful!';
+
+  // Home Static Strings
+  static const String deliverto = 'Deliver to';
+  static const String dummyuser = "Palazhi, Calicut";
+  static const String combinationbreakfast = 'Combination Breakfast';
+  static const String recBreakfast = 'Recommended Breakfast';
+  static const String noitems = 'No food items available';
 }

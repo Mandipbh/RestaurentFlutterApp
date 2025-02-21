@@ -7,4 +7,8 @@ class Images {
   static const String sc_reserve_table =
       'assets/select_category/reserved_table.jpg';
   static const String sc_catering = 'assets/select_category/catering.jpeg';
+
+  //Home Screen
+  static const String circleavatar_bg = 'assets/select_category/profile.png';
+  static const String banner = 'assets/select_category/banner.png';
 }

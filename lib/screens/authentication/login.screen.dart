@@ -8,7 +8,7 @@ import 'package:restaurent/widgets/custom_text.dart';
 import 'package:restaurent/widgets/custom_textfield.dart';
 import 'package:restaurent/widgets/custom_toast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'home_screen.dart';
+import '../home/home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   @override
@@ -16,8 +16,9 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController =
+      TextEditingController(text: 'kavita@gmail.com');
+  final _passwordController = TextEditingController(text: '123456');
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 

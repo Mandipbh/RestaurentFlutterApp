@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:restaurent/constants/images.dart';
 import 'package:restaurent/constants/strings.dart';
-import 'package:restaurent/screens/authentication/login.screen.dart';
+import 'package:restaurent/screens/onboarding/categories_list.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,14 +18,12 @@ class MyApp extends StatelessWidget {
 }
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
-
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
+  PageController _pageController = PageController();
   int _currentIndex = 0;
 
   final List<Map<String, String>> onboardingData = [
@@ -115,7 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     } else {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                        MaterialPageRoute(builder: (context) => CategoryList()),
                       );
                     }
                   },
@@ -140,8 +136,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingPage extends StatelessWidget {
   final String title, subtitle, image1, image2;
 
-  const OnboardingPage(
-      {super.key, required this.title,
+  OnboardingPage(
+      {required this.title,
       required this.subtitle,
       required this.image1,
       required this.image2});
