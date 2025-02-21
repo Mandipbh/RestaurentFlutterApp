@@ -9,18 +9,22 @@ import 'package:restaurent/providers/food_provider.dart';
 import 'package:restaurent/providers/menu_provider.dart';
 import 'package:restaurent/screens/cart/cart_screen.dart';
 import 'package:restaurent/screens/home/widgets/category.dart';
-import 'package:restaurent/screens/home/widgets/combination_breakfast_list.dart';
-import 'package:restaurent/screens/home/widgets/recommended_breakfast_list.dart';
-import 'package:restaurent/screens/reserve_table/reserve_table.dart';
-import 'package:restaurent/widgets/custom_bottombar.dart';
 import 'package:restaurent/screens/home/widgets/category_food_list.dart';
+import 'package:restaurent/screens/home/widgets/combination_breakfast_list.dart';
 import 'package:restaurent/screens/home/widgets/promo_banner.dart';
+import 'package:restaurent/screens/home/widgets/recommended_breakfast_list.dart';
 import 'package:restaurent/screens/home/widgets/searchbar.dart';
+import 'package:restaurent/screens/reserve_table/reserve_table.dart';
+import 'package:restaurent/screens/splash/splash.dart';
+import 'package:restaurent/widgets/custom_bottombar.dart';
 import 'package:restaurent/widgets/custom_divider.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OrderFood extends ConsumerStatefulWidget {
+  const OrderFood({super.key});
+
   @override
   ConsumerState<OrderFood> createState() => _OrderFoodState();
 }
@@ -50,6 +54,14 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
     final categoriesAsync = ref.watch(menuCategoriesProvider);
     final breakfastAsync = ref.watch(breakfastItemsProvider);
     final recommendedAsync = ref.watch(recommendedBreakfastsProvider);
+    Future<void> logout(BuildContext context) async {
+      final supabase = Supabase.instance.client;
+      await supabase.auth.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Splash()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.black,
@@ -106,6 +118,10 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
               );
             },
           ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => logout(context),
+          )
         ],
       ),
       body: SingleChildScrollView(
