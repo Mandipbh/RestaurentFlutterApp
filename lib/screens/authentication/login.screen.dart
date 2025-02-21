@@ -21,8 +21,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
-
-
   Future<void> _loginUser() async {
     final supabase = Supabase.instance.client;
 
@@ -38,18 +36,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
 
         if (response.user != null) {
-            final loggedInUser = response.user;
-                  if (loggedInUser != null) {
-                    ref.read(authProvider.notifier).state = loggedInUser;
-                  }
+          final loggedInUser = response.user;
+          if (loggedInUser != null) {
+            ref.read(authProvider.notifier).state = loggedInUser;
+          }
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HomeScreen()),
           );
         }
       } catch (e) {
-        setState(() {
-        });
+        setState(() {});
 
         FlushbarUtils.showErrorFlushbar(
           context,
@@ -142,8 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => AuthScreen()),
+                          MaterialPageRoute(builder: (context) => AuthScreen()),
                         );
                       },
                     ),
@@ -154,9 +150,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
-       
-    
-   
     );
   }
 }

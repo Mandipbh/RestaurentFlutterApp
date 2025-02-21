@@ -1,16 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurent/screens/cart/cart_screen.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/providers/cart_provider.dart';
+import 'package:restaurent/providers/food_provider.dart';
+import 'package:restaurent/screens/cart/cart_screen.dart';
 
-class FoodDetailScreens extends ConsumerWidget {
+class FoodDetailScreens extends ConsumerStatefulWidget {
   final Map<String, dynamic> food;
+  const FoodDetailScreens({super.key, required this.food});
 
-  FoodDetailScreens({required this.food});
+  @override
+  ConsumerState<FoodDetailScreens> createState() => _FoodState();
+}
+
+class _FoodState extends ConsumerState<FoodDetailScreens> {
+  List<Map<String, dynamic>> reviews = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() => fetchReviews());
+  }
+
+  void fetchReviews() async {
+    final user = ref.read(authProvider); // Use read instead of watch
+    if (user == null) return;
+
+    final result = await ref.read(foodReviewsProvider({
+      'food_id': widget.food['id'],
+      'user_id': user.id,
+    }).future);
+
+    setState(() {
+      reviews = result;
+    });
+  }
 
   Widget _buildRatingStars(double rating) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: List.generate(5, (index) {
         return Icon(
           index < rating ? Icons.star : Icons.star_border,
@@ -22,7 +51,7 @@ class FoodDetailScreens extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
     final size = MediaQuery.of(context).size;
 
@@ -45,19 +74,18 @@ class FoodDetailScreens extends ConsumerWidget {
       ),
       body: Stack(
         children: [
-          Container(
+          SizedBox(
             height: size.height,
             width: size.width,
             child: Image.network(
-              food['image_url'] ?? '',
+              widget.food['image_url'] ?? '',
               fit: BoxFit.cover,
             ),
           ),
-          
           DraggableScrollableSheet(
-            initialChildSize: 0.65, 
+            initialChildSize: 0.65,
             minChildSize: 0.65,
-            maxChildSize: 0.85, 
+            maxChildSize: 0.85,
             builder: (context, scrollController) {
               return Container(
                 decoration: BoxDecoration(
@@ -69,91 +97,98 @@ class FoodDetailScreens extends ConsumerWidget {
                 ),
                 child: SingleChildScrollView(
                   controller: scrollController,
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Container(
-                            width: 40,
-                            height: 4,
-                            margin: EdgeInsets.only(bottom: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[600],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          margin: EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[600],
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                              Container(
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Icon(Icons.circle, color: Colors.white, size: 16),
-                            ),
-                        // Title and veg icon
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              food['name'],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                      
-                          ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child:
+                              Icon(Icons.circle, color: Colors.green, size: 16),
                         ),
-                        
-                        SizedBox(height: 8),
-                        
-                        // Rating
-                        _buildRatingStars(4.5),
-                        SizedBox(height: 16),
-                        
-                        // Price
-                        Text(
-                          '₹ ${food['price']}',
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            widget.food['name'],
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildRatingStars(widget.food['rating'] ?? 0),
+                          Text(
+                            '${widget.food['rating']}',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          '₹ ${widget.food['price']}',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 20),
-                        
-                        // Size options
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: ['2.5', '3.0', '3.5'].map((size) => 
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey[800]!),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                size,
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ).toList(),
+                      ),
+                      SizedBox(height: 10),
+                      Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Text(
+                          widget.food['description'],
+                          style:
+                              TextStyle(color: Colors.grey[400], fontSize: 14),
                         ),
-                        SizedBox(height: 24),
-                        
-                        // Description
-                        Text(
-                          food['description'],
-                          style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildStatCard(
+                              widget.food['carbs_grams'].toString(), 'Carbs'),
+                          _buildStatCard(
+                              widget.food['fat_grams'].toString(), 'Fat'),
+                          _buildStatCard(
+                              widget.food['protein_grams'].toString(),
+                              'Protein'),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 51, 50, 50),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(24),
+                            topRight: Radius.circular(24),
+                          ),
                         ),
-                        SizedBox(height: 24),
-                        
-                        // Add to cart button
-                        Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                        child: SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -164,10 +199,13 @@ class FoodDetailScreens extends ConsumerWidget {
                               ),
                             ),
                             onPressed: () {
-                              ref.read(cartProvider.notifier).addToCart(user!.id, food['id'], 1);
+                              ref
+                                  .read(cartProvider.notifier)
+                                  .addToCart(user!.id, widget.food['id'], 1);
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => CartScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) => CartScreen()),
                               );
                             },
                             child: Text(
@@ -175,79 +213,115 @@ class FoodDetailScreens extends ConsumerWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 24),
-                        
-                        // Terms & Conditions
-                        Text(
-                          'Ingredients',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          food['ingredients'],
-                          style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                        ),
-                        SizedBox(height: 24),
-                        
-                        Text(
-                          'Reviews',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        
-                        
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: 6,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 20,
-                                    backgroundImage: AssetImage('assets/select_category/profile.png'),
-                                  ),
-                                  SizedBox(width: 12),
-                                Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              'Asif Mohammed',
-                                              style: TextStyle(color: Colors.white, fontSize: 14),
-                                            ),
-                                            SizedBox(width: 8),
-                                            _buildRatingStars(5),
-                                          ],
-                                        ),
-                                        Text(
-                                          'Great customer service and very well made dosa',
-                                          style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                                        ),
-                                      ],
-                                    ),
-                                  
-                                ],
+                      ),
+                      SizedBox(height: 10),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Ingredients',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            );
-                          },
+                              Text(
+                                widget.food['ingredients'],
+                                style: TextStyle(
+                                    color: Colors.grey[400], fontSize: 14),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 10),
+                      Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              'Reviews',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 200,
+                              child: ListView.builder(
+                                itemCount: reviews.length,
+                                itemBuilder: (context, index) {
+                                  final review = reviews[index];
+                                  return Card(
+                                    color: Colors.grey.shade900,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 16),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 24,
+                                            backgroundImage: NetworkImage(
+                                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn9zilY2Yu2hc19pDZFxgWDTUDy5DId7ITqA&s'),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  review['user_name'],
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                      color: Colors.white),
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  review['review_text'],
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.white),
+                                                ),
+                                                SizedBox(height: 6),
+                                                Row(
+                                                  children: List.generate(
+                                                    review['rating'].toInt(),
+                                                    (index) => Icon(Icons.star,
+                                                        color: Colors.amber,
+                                                        size: 16),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 ),
               );
@@ -257,5 +331,28 @@ class FoodDetailScreens extends ConsumerWidget {
       ),
     );
   }
-}
 
+  Widget _buildStatCard(String value, String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(32),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+                color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}

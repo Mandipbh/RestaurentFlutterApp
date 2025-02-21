@@ -37,6 +37,8 @@ dependencies:
   supabase_flutter: ^2.8.3
   another_flushbar: ^1.12.30
   smooth_page_indicator: ^1.2.0+3
+  flutter_riverpod: any
+  shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +79,12 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  
+  fonts:
+    - family: GillSans
+      fonts:
+        - asset: assets/fonts/GillSansStd.otf
+
   # fonts:
   #   - family: Schyler
   #     fonts:

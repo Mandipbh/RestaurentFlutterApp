@@ -4,10 +4,14 @@ import 'package:restaurent/providers/category_provider.dart';
 import 'package:restaurent/providers/food_provider.dart';
 import 'package:restaurent/providers/menu_provider.dart';
 import 'package:restaurent/screens/order_food/food_detail_screen.dart';
+import 'package:restaurent/screens/splash/splash.dart';
 import 'package:restaurent/widgets/custom_bottombar.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OrderFood extends ConsumerStatefulWidget {
+  const OrderFood({super.key});
+
   @override
   ConsumerState<OrderFood> createState() => _OrderFoodState();
 }
@@ -65,6 +69,10 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
             icon: Icon(Icons.notifications, color: Colors.white),
             onPressed: () {},
           ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _logout(context),
+          )
         ],
       ),
       body: SingleChildScrollView(
@@ -90,7 +98,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                       categories.map((cat) => cat["name"] as String).toList();
                   final categoryIds =
                       categories.map((cat) => cat["id"] as String).toList();
-                  print('catet gaertet >> ${selectedCategoryId}');
+                  print('catet gaertet >> $selectedCategoryId');
 
                   if (selectedCategoryId == null && categoryIds.isNotEmpty) {
                     ref.read(selectedCategoryIdProvider.notifier).state =
@@ -180,12 +188,13 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                             children: [
                               InkWell(
                                 onTap: () {
-                                         Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FoodDetailScreens(food: food),
-                  ),
-                );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FoodDetailScreens(food: food),
+                                    ),
+                                  );
                                 },
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.vertical(
@@ -195,8 +204,9 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                                     height: 140,
                                     width: double.infinity,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        Container(
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
                                       height: 140,
                                       color: Colors.grey[800],
                                       child: Icon(Icons.fastfood,
@@ -263,19 +273,20 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                                         Text(
                                           '₹${food['price']}',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold
-                                          ),
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                         InkWell(
                                           onTap: () {
-        Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FoodDetailScreens(food: food),
-                  ),
-                );
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    FoodDetailScreens(
+                                                        food: food),
+                                              ),
+                                            );
                                           },
                                           child: Container(
                                             padding: EdgeInsets.all(4),
@@ -449,8 +460,9 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                                   Text(
                                     '₹${food['price']}',
                                     style: TextStyle(
-                                        color: Colors.white,    fontSize: 16,
-                                            fontWeight: FontWeight.bold),
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -528,9 +540,10 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                             SizedBox(height: 4),
                             Text(
                               '₹24',
-                              style:
-                                  TextStyle(color: Colors.white,    fontSize: 16,
-                                            fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
                             ),
                             SizedBox(height: 2),
@@ -599,6 +612,15 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
     );
   }
 
+  Future<void> _logout(BuildContext context) async {
+    final supabase = Supabase.instance.client;
+    await supabase.auth.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Splash()),
+    );
+  }
+
   Widget _buildSearchBar() {
     return Padding(
       padding: EdgeInsets.all(10),
@@ -627,7 +649,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
   Widget _buildPromoBanner() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Container(
+      child: SizedBox(
         height: 200,
         child: PageView(
           controller: _pageController,
