@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/constants/responsive.dart';
+import 'package:restaurent/widgets/custom_divider.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
-import 'package:restaurent/widgets/custom_divider.dart';
 
 class OrderTotalSummary extends StatelessWidget {
   final double totalPrice;
@@ -12,20 +12,19 @@ class OrderTotalSummary extends StatelessWidget {
   final double grandTotal;
 
   const OrderTotalSummary({
-    Key? key,
+    super.key,
     required this.totalPrice,
     required this.gst,
     required this.deliveryFee,
     required this.grandTotal,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 20),
       decoration: BoxDecoration(
-        color: Color(0xFF2E2E2E),
+              color: const Color.fromARGB(255, 22, 22, 22),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -42,7 +41,7 @@ class OrderTotalSummary extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
                 CustomText(
-                  text: "\₹ ${totalPrice.toStringAsFixed(2)}",
+                  text: "₹ ${totalPrice.toStringAsFixed(2)}",
                   fontSize: 18,
                   color: AppColors.white70,
                   fontWeight: FontWeight.bold,
@@ -110,7 +109,7 @@ class OrderTotalSummary extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
                 CustomText(
-                  text: "\₹ ${grandTotal.toStringAsFixed(2)}",
+                  text: "₹ ${grandTotal.toStringAsFixed(2)}",
                   fontSize: 18,
                   color: AppColors.white70,
                   fontWeight: FontWeight.bold,

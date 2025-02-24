@@ -8,10 +8,10 @@ class LocationDisplay extends StatelessWidget {
   final VoidCallback? onEdit;
 
   const LocationDisplay({
-    Key? key,
+    super.key,
     required this.location,
     this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +19,16 @@ class LocationDisplay extends StatelessWidget {
       children: [
         Icon(Icons.location_on_outlined, color: Colors.white),
         CustomSizedBox.w10,
-        CustomText(
-          text: location,
-          fontSize: 14,
-          color: AppColors.white,
-          fontWeight: FontWeight.bold,
+        SizedBox(
+          width: 180,
+          child: CustomText(
+            text: location,
+            fontSize: 14,
+            color: AppColors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         CustomSizedBox.w30,
-        CustomSizedBox.w10,
         IconButton(
           icon: Icon(Icons.edit, color: AppColors.white70),
           iconSize: 20,

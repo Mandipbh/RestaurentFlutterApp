@@ -3,6 +3,7 @@ import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/constants/responsive.dart';
 import 'package:restaurent/screens/cart/widgets/cart_item_list.dart';
 import 'package:restaurent/screens/cart/widgets/location_display.dart';
+import 'package:restaurent/screens/cart/widgets/order_total_summary.dart';
 import 'package:restaurent/widgets/custom_divider.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
@@ -15,16 +16,28 @@ class OrderSummary extends StatelessWidget {
   final VoidCallback onEditLocation;
 
   const OrderSummary({
-    Key? key,
+    super.key,
     required this.cartItems,
     required this.totalPrice,
     required this.userId,
     required this.location,
     required this.onEditLocation,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
+    double totalPrice = cartItems.fold(0, (sum, item) {
+      double itemPrice = (item['food_items']['price'] ?? 0).toDouble();
+      int quantity = (item['quantity'] ?? 1);
+      return sum + (itemPrice * quantity);
+    });
+
+    double gstRate = 0.05;
+    double gst = totalPrice * gstRate;
+    double deliveryFee = 50.0;
+
+    double grandTotal = totalPrice + gst + deliveryFee;
+
     return Padding(
       padding: EdgeInsets.all(10),
       child: Column(
@@ -32,7 +45,7 @@ class OrderSummary extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Color(0xFF2E2E2E),
+              color: const Color.fromARGB(255, 22, 22, 22),
               borderRadius: BorderRadius.circular(15),
             ),
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
@@ -45,8 +58,8 @@ class OrderSummary extends StatelessWidget {
                   color: AppColors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                CustomSizedBox.h10,
-                CartItemList(cartItems: cartItems, userId: userId),
+                CustomSizedBox.h5,
+                CartItemList(cartItems: cartItems, userId: userId, isPayment: false,),
                 CustomSizedBox.h10,
                 CustomDivider(
                   color: Colors.grey[800]!,
@@ -79,7 +92,7 @@ class OrderSummary extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                       CustomText(
-                        text: "\₹ ${totalPrice.toStringAsFixed(2)}",
+                        text: "₹ ${totalPrice.toStringAsFixed(2)}",
                         fontSize: 18,
                         color: AppColors.white70,
                         fontWeight: FontWeight.bold,
@@ -89,6 +102,13 @@ class OrderSummary extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          CustomSizedBox.h35,
+          OrderTotalSummary(
+            totalPrice: totalPrice,
+            gst: gst,
+            deliveryFee: deliveryFee,
+            grandTotal: grandTotal,
           ),
         ],
       ),

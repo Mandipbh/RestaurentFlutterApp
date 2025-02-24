@@ -4,37 +4,54 @@ import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/providers/cart_provider.dart';
 import 'package:restaurent/screens/cart/widgets/order_summary.dart';
-import 'package:restaurent/screens/cart/widgets/order_total_summary.dart';
-import 'package:restaurent/widgets/custom_bottombar.dart';
-import 'package:restaurent/widgets/custom_sizebox.dart';
+import 'package:restaurent/screens/order_food/payment_screen.dart';
 import 'package:restaurent/widgets/custom_text.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class CartScreen extends ConsumerWidget {
+class CartScreen extends ConsumerStatefulWidget {
+  const CartScreen({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cartNotifier = ref.read(cartProvider.notifier);
-    final cartItems = ref.watch(cartProvider);
+  _CartScreenState createState() => _CartScreenState();
+}
 
-    final user = ref.watch(authProvider);
-    final userMetadata = user?.userMetadata;
-    final userName = userMetadata?['full_name'];
-    final userAddress = userMetadata?['address'];
-    // print('userAddress->>> $userAddress');
+class _CartScreenState extends ConsumerState<CartScreen> {
+  String? _userAddress;
 
-    // Fetch cart items after first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (user != null) {
-        cartNotifier.fetchCart(user.id);
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    final user = ref.read(authProvider);
+    if (user != null) {
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('users')
+          .select('address')
+          .eq('id', user.id)
+          .single();
+
+      if (response['address'] != null) {
+        setState(() {
+          _userAddress = response['address'];
+        });
       }
-    });
+    }
+  }
 
-    // Calculate total price
-    double totalPrice = cartItems.fold(0,
-        (sum, item) => sum + (item['food_items']['price'] * item['quantity']));
+  @override
+  Widget build(BuildContext context) {
+    final cartItems = ref.watch(cartProvider);
+    final user = ref.watch(authProvider);
 
-    String location = "Block-J, Sector-10, Rohini, Delhi";
+    print('User data: $user');
+    print('User Address: $_userAddress');
 
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(
           "Cart",
@@ -67,23 +84,96 @@ class CartScreen extends ConsumerWidget {
                   children: [
                     OrderSummary(
                       cartItems: cartItems,
-                      totalPrice: totalPrice,
+                      totalPrice: 40,
                       userId: user!.id,
-                      location: location,
+                      location: _userAddress ?? 'No address available',
                       onEditLocation: () {},
                     ),
-                    CustomSizedBox.h35,
-                    OrderTotalSummary(
-                      totalPrice: totalPrice,
-                      gst: 21,
-                      deliveryFee: 50,
-                      grandTotal: 89.97,
-                    ),
+                  
+                  
+                  
+                  
+                  ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentScreen(
+          totalPrice: calculateTotalAmount(cartItems), // Pass calculated total price
+          userAddress: _userAddress ?? "No address available",
+          cartItems: cartItems
+        ),
+      ),
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.grey.shade900,
+    minimumSize: Size(double.infinity, 50),
+  ),
+  child: Text(
+    "Order Now",
+    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+  ),
+),
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
                   ],
                 ),
               ),
             ),
-      bottomNavigationBar: CustomBottomNavBar(showButtonBottomNavBar: true),
     );
+  }
+  // lib/utils/cart_utils.dart
+
+  double calculateTotalAmount(List<Map<String, dynamic>> cartItems) {
+    double subtotal = 0.0;
+    double gst = 0.0;
+    double deliveryFee = 30.0; // You can make this configurable
+
+    // Calculate subtotal
+    for (var item in cartItems) {
+      double price = double.parse(item['food_items']['price'].toString());
+      int quantity = item['quantity'] as int;
+      subtotal += price * quantity;
+    }
+
+    // Calculate GST (assuming 5% GST)
+    gst = subtotal * 0.05;
+
+    // Total amount including GST and delivery fee
+    double totalAmount = subtotal + gst + deliveryFee;
+
+    return totalAmount;
+  }
+
+  Map<String, double> getOrderBreakdown(List<Map<String, dynamic>> cartItems) {
+    double subtotal = 0.0;
+
+    // Calculate subtotal
+    for (var item in cartItems) {
+      double price = double.parse(item['food_items']['price'].toString());
+      int quantity = item['quantity'] as int;
+      subtotal += price * quantity;
+    }
+
+    // Calculate other components
+    double gst = subtotal * 0.05;
+    double deliveryFee = 30.0;
+    double total = subtotal + gst + deliveryFee;
+
+    return {
+      'subtotal': subtotal,
+      'gst': gst,
+      'deliveryFee': deliveryFee,
+      'total': total,
+    };
   }
 }

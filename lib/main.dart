@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:restaurent/constants/const.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/screens/order_food/order_food.dart';
 import 'package:restaurent/screens/splash/splash.dart';
@@ -12,7 +14,13 @@ void main() async {
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhbmt5amtiZGZicXlpanBmdnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDYxNjAsImV4cCI6MjA1NTAyMjE2MH0.pJQPliX_VITJFlDJBBoUFw18oinQbfwsug174icplaA', // Replace with your Supabase anon key
   );
+    await _setup();
+
   runApp(ProviderScope(child: MyApp()));
+}
+Future<void> _setup() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = stripePublishKey;
 }
 
 class MyApp extends StatelessWidget {
