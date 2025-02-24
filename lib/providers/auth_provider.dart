@@ -27,3 +27,4 @@ void printUserDetails(WidgetRef ref) {
 final authStateProvider = StreamProvider<AuthState>((ref) {
   return supabase.auth.onAuthStateChange;
 });
+

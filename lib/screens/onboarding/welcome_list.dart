@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurent/constants/images.dart';
-import 'package:restaurent/screens/authentication/auth_screen.dart';
+import 'package:restaurent/screens/authentication/register_screen.dart';
 
 class CategoryList extends StatelessWidget {
   final List<Map<String, String>> categories = [

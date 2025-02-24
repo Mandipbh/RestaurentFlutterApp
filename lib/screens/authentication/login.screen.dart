@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/providers/auth_provider.dart';
-import 'package:restaurent/screens/authentication/auth_screen.dart';
+import 'package:restaurent/screens/authentication/register_screen.dart';
 import 'package:restaurent/widgets/custom_button.dart';
 import 'package:restaurent/widgets/custom_text.dart';
 import 'package:restaurent/widgets/custom_textfield.dart';

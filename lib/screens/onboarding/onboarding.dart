@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:restaurent/constants/images.dart';
 import 'package:restaurent/constants/strings.dart';
-import 'package:restaurent/screens/onboarding/categories_list.dart';
+import 'package:restaurent/screens/onboarding/welcome_list.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,12 +20,14 @@ class MyApp extends StatelessWidget {
 }
 
 class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentIndex = 0;
 
   final List<Map<String, String>> onboardingData = [
@@ -136,8 +140,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingPage extends StatelessWidget {
   final String title, subtitle, image1, image2;
 
-  OnboardingPage(
-      {required this.title,
+  const OnboardingPage(
+      {super.key, required this.title,
       required this.subtitle,
       required this.image1,
       required this.image2});

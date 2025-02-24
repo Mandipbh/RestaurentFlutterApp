@@ -11,12 +11,13 @@ class PaymentScreen extends ConsumerStatefulWidget {
   final double totalPrice;
   final String userAddress;
   final List<Map<String, dynamic>> cartItems;
+  final String userId;
 
   const PaymentScreen({
     super.key,
     required this.totalPrice,
     required this.userAddress,
-    required this.cartItems,
+    required this.cartItems, required this.userId,
   });
 
   @override
@@ -26,15 +27,19 @@ class PaymentScreen extends ConsumerStatefulWidget {
 class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   void _payWithCard() {
     StripeService.instance
-        .makePayment(widget.totalPrice, widget.userAddress, widget.cartItems);
+        .makePayment(widget.totalPrice, widget.userAddress, widget.cartItems, context, widget.userId);
+        
   }
 
   void _cashOnDelivery() {
     print("Cash on Delivery selected");
+
+
  Navigator.push(
    context,
    MaterialPageRoute(builder: (context) => OrderScreen()),
- );  }
+ ); 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +50,10 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         title:
             Text("Payment Options", style: TextStyle(color: AppColors.white)),
         backgroundColor: AppColors.black,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: AppColors.white),
+        onPressed: () => Navigator.pop(context),
+      ),
       ),
       backgroundColor: Colors.black,
       body: Padding(

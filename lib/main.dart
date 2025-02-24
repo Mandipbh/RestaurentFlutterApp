@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:restaurent/constants/const.dart';
+import 'package:restaurent/screens/navigation/main-navigation.dart';
 import 'package:restaurent/providers/auth_provider.dart';
-import 'package:restaurent/screens/order_food/order_food.dart';
 import 'package:restaurent/screens/splash/splash.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -34,6 +34,12 @@ class MyApp extends StatelessWidget {
   theme: ThemeData(
     primarySwatch: Colors.blue,
     fontFamily: 'GillSans', 
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.grey,
+      ),
+    
   ),
   home: AuthWrapper(),
 );
@@ -49,7 +55,7 @@ class AuthWrapper extends ConsumerWidget {
     return authState.when(
       data: (state) {
         if (state.session != null) {
-          return  OrderFood();
+          return  MainNavigation();
         }
         return  Splash();
       },

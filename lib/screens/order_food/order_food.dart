@@ -4,6 +4,7 @@ import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/constants/images.dart';
 import 'package:restaurent/constants/responsive.dart';
 import 'package:restaurent/constants/strings.dart';
+import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/providers/category_provider.dart';
 import 'package:restaurent/providers/food_provider.dart';
 import 'package:restaurent/providers/menu_provider.dart';
@@ -14,9 +15,9 @@ import 'package:restaurent/screens/home/widgets/combination_breakfast_list.dart'
 import 'package:restaurent/screens/home/widgets/promo_banner.dart';
 import 'package:restaurent/screens/home/widgets/recommended_breakfast_list.dart';
 import 'package:restaurent/screens/home/widgets/searchbar.dart';
+import 'package:restaurent/screens/payment/table_selection.dart';
 import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/screens/splash/splash.dart';
-import 'package:restaurent/widgets/custom_bottombar.dart';
 import 'package:restaurent/widgets/custom_divider.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
@@ -30,26 +31,16 @@ class OrderFood extends ConsumerStatefulWidget {
 }
 
 class _OrderFoodState extends ConsumerState<OrderFood> {
-  int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    OrderFood(),
-    // LocationScreen(),
-    // CartScreen(),
-    // SettingsScreen(),
-  ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     final categoryAsync = ref.watch(catListProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final foodItems = ref.watch(foodListProvider(selectedCategoryId));
+        final user = ref.watch(authProvider);
+
 
     final categoriesAsync = ref.watch(menuCategoriesProvider);
     final breakfastAsync = ref.watch(breakfastItemsProvider);
@@ -107,7 +98,15 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications, color: AppColors.white),
-            onPressed: () {},
+            onPressed: () {
+
+   Navigator.push(
+     context,
+     MaterialPageRoute(builder: (context) => TableSelectionScreen()),
+   );
+
+
+            },
           ),
           IconButton(
             icon: Icon(Icons.shopping_cart, color: AppColors.white),
@@ -154,11 +153,13 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 ],
               ),
               CustomSizedBox.h40,
-              CategoryFoodList(
-                categoryAsync: categoryAsync,
-                foodItems: foodItems,
-                selectedCategoryIdProvider: selectedCategoryIdProvider,
-              ),
+              if (user != null) 
+                CategoryFoodList(
+                  categoryAsync: categoryAsync,
+                  foodItems: foodItems,
+                  user: user,
+                  selectedCategoryIdProvider: selectedCategoryIdProvider,
+                ),
               CustomSizedBox.h40,
               CategoryListImageTitle(categoriesAsync: categoriesAsync),
               CustomSizedBox.h20,
@@ -189,7 +190,6 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(),
     );
   }
 }

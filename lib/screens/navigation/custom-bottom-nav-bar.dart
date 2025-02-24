@@ -1,43 +1,41 @@
 import 'package:flutter/material.dart';
 
+
+
 class CustomBottomNavBar extends StatefulWidget {
   final bool showButtonBottomNavBar;
+  final int currentIndex;
+  final Function(int) onTap;
 
-  const CustomBottomNavBar({Key? key, this.showButtonBottomNavBar = false})
-      : super(key: key);
+  const CustomBottomNavBar({
+    super.key, 
+    this.showButtonBottomNavBar = false,
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
 }
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
       color: Colors.black,
       child: widget.showButtonBottomNavBar
-          ? _buildSingleButton() // Show single button if true
-          : _buildNavigationBar(), // Show original design otherwise
+          ? _buildSingleButton() 
+          : _buildNavigationBar(), 
     );
   }
 
-  /// **Method to build the original bottom navigation bar**
   Widget _buildNavigationBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _buildNavItem(Icons.home, "Home", 0),
-        _buildNavItem(Icons.location_on, "Location", 1),
-        _buildNavItem(Icons.shopping_cart, "Cart", 2),
-        _buildNavItem(Icons.settings, "Settings", 3),
+        _buildNavItem(Icons.shopping_cart, "Cart", 1),
+        _buildNavItem(Icons.settings, "Settings", 2),
       ],
     );
   }
@@ -64,12 +62,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     );
   }
 
-  /// **Method to build navigation item**
   Widget _buildNavItem(IconData icon, String label, int index) {
-    bool isSelected = _selectedIndex == index;
+    bool isSelected = widget.currentIndex == index;
 
     return GestureDetector(
-      onTap: () => _onItemTapped(index),
+      onTap: () => widget.onTap(index),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -99,3 +96,4 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     );
   }
 }
+

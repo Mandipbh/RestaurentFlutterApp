@@ -24,7 +24,7 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
   }
 
   void fetchReviews() async {
-    final user = ref.read(authProvider); // Use read instead of watch
+    final user = ref.read(authProvider); 
     if (user == null) return;
 
     final result = await ref.read(foodReviewsProvider({

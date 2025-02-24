@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gotrue/src/types/user.dart';
 import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/constants/strings.dart';
+import 'package:restaurent/providers/cart_provider.dart';
 import 'package:restaurent/screens/order_food/food_detail_screen.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
@@ -10,21 +12,25 @@ class CategoryFoodList extends ConsumerWidget {
   final AsyncValue<List<Map<String, dynamic>>> categoryAsync;
   final AsyncValue<List<Map<String, dynamic>>> foodItems;
   final StateProvider<String?> selectedCategoryIdProvider;
+  final User user;
 
   const CategoryFoodList({
-    Key? key,
+    super.key,
     required this.categoryAsync,
     required this.foodItems,
     required this.selectedCategoryIdProvider,
-  }) : super(key: key);
+    required this.user,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
+    final cart = ref.watch(cartProvider); // Watch the cart state
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Categories List
         categoryAsync.when(
           data: (categories) {
             final categoryNames =
@@ -112,6 +118,9 @@ class CategoryFoodList extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 itemBuilder: (context, index) {
                   final food = foods[index];
+
+                  final isInCart =
+                      cart.any((item) => item['food_id'] == food['id']);
 
                   return Container(
                     width: 170,
@@ -212,23 +221,26 @@ class CategoryFoodList extends ConsumerWidget {
                                       fontWeight: FontWeight.bold),
                                   InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              FoodDetailScreens(food: food),
-                                        ),
-                                      );
+                                      if (!isInCart) {
+                                        ref
+                                            .read(cartProvider.notifier)
+                                            .addToCart(user.id, food['id'], 1);
+                                      }
                                     },
                                     child: Container(
+                                      decoration: BoxDecoration(
+                                        color: isInCart
+                                            ? Colors.orange
+                                            : Colors.grey.shade900,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                      ),
                                       padding: EdgeInsets.all(4),
-                                      // decoration: BoxDecoration(
-                                      //   color: Colors.grey.shade600,
-                                      //   borderRadius: BorderRadius.circular(25),
-                                      // ),
                                       child: Icon(
                                         Icons.add,
-                                        color: Colors.white,
+                                        color: isInCart
+                                            ? Colors.white
+                                            : Colors.white,
                                         size: 20,
                                       ),
                                     ),

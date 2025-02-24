@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:restaurent/constants/const.dart';
+import 'package:restaurent/screens/order_food/order_success.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StripeService {
@@ -9,7 +11,7 @@ class StripeService {
   static final StripeService instance = StripeService._();
 
   Future<void> makePayment(double totalPrice, String userAddress,
-      List<Map<String, dynamic>> orderItems) async {
+      List<Map<String, dynamic>> orderItems, BuildContext context, String userId) async {
     try {
       String? paymentIntentClientSecret =
           await createPaymentStripe(totalPrice.toInt(), "usd");
@@ -41,7 +43,7 @@ class StripeService {
       final orderId = await _insertOrder(totalPrice, userAddress);
       if (orderId != null) {
         await _insertOrderItems(orderId, orderItems, totalPrice);
-        await _insertPayment(orderId, totalPrice, paymentIntentClientSecret);
+        await _insertPayment(orderId, totalPrice, paymentIntentClientSecret, context, userId);
       }
     } catch (e) {
       print("Error during payment process: $e");
@@ -84,6 +86,10 @@ class StripeService {
       await Stripe.instance.presentPaymentSheet();
       await Stripe.instance.confirmPaymentSheetPayment();
       print("Payment successful!");
+
+
+
+
     } on StripeException catch (e) {
       print("Stripe error: ${e.error.localizedMessage}");
     } catch (e) {
@@ -99,17 +105,17 @@ class StripeService {
   final response = await supabase
       .from('orders')
       .insert({
-        'user_id': supabase.auth.currentUser?.id, // Assuming user is logged in
+        'user_id': supabase.auth.currentUser?.id, 
         'total_amount': totalAmount,
-        'status': 'pending', // or any initial status you want
+        'status': 'pending', 
         'delivery_address': deliveryAddress,
-        'payment_status': 'completed', // Assuming payment is successful
+        'payment_status': 'completed', 
       })
       .select()
-      .single(); // Fetch the inserted row and get a single record
+      .single(); 
 
   print('Order inserted successfully');
-  return response['id']; // Return the order ID
+  return response['id']; 
 }
 
   
@@ -152,13 +158,29 @@ class StripeService {
     }
   }
 
+
+Future<void> _clearCart(String userId) async {
+  final supabase = Supabase.instance.client;
+
+  final response = await supabase
+      .from('cart')
+      .delete()
+      .eq('user_id', userId);
+
+ 
+ 
+ 
+    print('Cart cleared successfully');
+  
+}
   Future<void> _insertPayment(
-      String orderId, double amount, String stripePaymentId) async {
+      String orderId, double amount, String stripePaymentId, BuildContext context, userId) async {
     final supabase = Supabase.instance.client;
 
     final response = await supabase.from('payments').insert({
       'order_id': orderId,
       'amount': amount,
+      'user_id':userId,
       'payment_method': 'stripe',
       'payment_status': 'completed',
       'stripe_payment_id': stripePaymentId,
@@ -168,6 +190,12 @@ class StripeService {
       print('Error inserting payment: ${response.error!.message}');
     } else {
       print('Payment inserted successfully');
+          await _clearCart(userId);
+
+            Navigator.push(
+  context,
+  MaterialPageRoute(builder: (context) => OrderScreen()),
+); 
     }
   }
  

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:restaurent/screens/order_food/order_food.dart';
+import 'package:restaurent/screens/navigation/main-navigation.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -12,7 +12,6 @@ class HomeScreen extends StatelessWidget {
             'assets/select_category/order_food_background.jpg',
             fit: BoxFit.cover,
           ),
-
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -25,7 +24,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
           Positioned(
             bottom: 50,
             left: 0,
@@ -34,7 +32,7 @@ class HomeScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => OrderFood()),
+                  MaterialPageRoute(builder: (context) => MainNavigation()),
                 );
               },
               child: Column(
@@ -68,7 +66,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-   
     );
   }
 }

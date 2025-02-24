@@ -4,7 +4,8 @@ import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/providers/cart_provider.dart';
 import 'package:restaurent/screens/cart/widgets/order_summary.dart';
-import 'package:restaurent/screens/order_food/payment_screen.dart';
+import 'package:restaurent/screens/navigation/main-navigation.dart';
+import 'package:restaurent/screens/payment/payment_screen.dart';
 import 'package:restaurent/widgets/custom_text.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -17,6 +18,7 @@ class CartScreen extends ConsumerStatefulWidget {
 
 class _CartScreenState extends ConsumerState<CartScreen> {
   String? _userAddress;
+  String? _userId;
 
   @override
   void initState() {
@@ -37,6 +39,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       if (response['address'] != null) {
         setState(() {
           _userAddress = response['address'];
+          _userId = user.id;
         });
       }
     }
@@ -58,12 +61,15 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           style: TextStyle(color: AppColors.white),
         ),
         backgroundColor: AppColors.black,
-        leading: IconButton(
-          icon: Icon(Icons.chevron_left_sharp, color: AppColors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+         leading: IconButton(
+   icon: Icon(Icons.arrow_back, color: AppColors.white),
+   onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> MainNavigation() )),
+ ),   
+   
+   
+   
+   
+   
       ),
       body: cartItems.isEmpty
           ? Container(
@@ -101,6 +107,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         builder: (context) => PaymentScreen(
           totalPrice: calculateTotalAmount(cartItems), // Pass calculated total price
           userAddress: _userAddress ?? "No address available",
+          userId: _userId ?? '',
           cartItems: cartItems
         ),
       ),
