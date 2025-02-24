@@ -18,13 +18,6 @@ class CartNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     fetchCart(userId);
   }
 
-  // Future<void> fetchCart(String userId) async {
-  //   final response = await Supabase.instance.client.from('cart')
-  //       .select('*, food_items(*)')
-  //       .eq('user_id', userId);
-  //   state = response;
-  // }
-
   Future<void> fetchCart(String userId) async {
     try {
       final response = await Supabase.instance.client

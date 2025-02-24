@@ -8,10 +8,6 @@ final authProvider = StateProvider<User?>((ref) {
   return supabase.auth.currentUser;
 });
 
-
-
-
-
 final authStateProvider = StreamProvider<AuthState>((ref) {
   return supabase.auth.onAuthStateChange;
 });

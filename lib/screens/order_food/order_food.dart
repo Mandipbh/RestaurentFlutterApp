@@ -30,20 +30,6 @@ class OrderFood extends ConsumerStatefulWidget {
 }
 
 class _OrderFoodState extends ConsumerState<OrderFood> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _screens = [
-    OrderFood(),
-    // LocationScreen(),
-    // CartScreen(),
-    // SettingsScreen(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
