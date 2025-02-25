@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurent/screens/order_food/order_food.dart';
+import 'package:restaurent/screens/reserve_table/add_reserve_table.dart';
 
 class ReserveTable extends StatelessWidget {
   @override
@@ -32,14 +33,14 @@ class ReserveTable extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => OrderFood()),
+                  MaterialPageRoute(builder: (context) => AddReserveTable()),
                 );
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "ORDER FOOD",
+                    "RESERVE A TABLE",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -48,7 +49,7 @@ class ReserveTable extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "We'll deliver it right to your door",
+                    "Reserve a table at Paragon right now",
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white70,

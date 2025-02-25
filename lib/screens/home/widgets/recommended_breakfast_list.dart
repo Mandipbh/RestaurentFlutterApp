@@ -18,7 +18,6 @@ class RecommendedFoodList extends StatelessWidget {
           itemCount: foodItems.length,
           itemBuilder: (context, index) {
             final food = foodItems[index];
-            print('Food---> $food');
 
             return Container(
               margin: EdgeInsets.only(left: 20, right: 10),
