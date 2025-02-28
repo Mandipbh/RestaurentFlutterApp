@@ -28,12 +28,12 @@ class LocationDisplay extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        CustomSizedBox.w30,
-        IconButton(
-          icon: Icon(Icons.edit, color: AppColors.white70),
-          iconSize: 20,
-          onPressed: onEdit ?? () {},
-        ),
+        // CustomSizedBox.w30,
+        // IconButton(
+          // icon: Icon(Icons.edit, color: AppColors.white70),
+          // iconSize: 20,
+          // onPressed: onEdit ?? () {},
+        // ),
       ],
     );
   }

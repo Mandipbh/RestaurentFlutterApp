@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/constants/colors.dart';
@@ -5,9 +6,11 @@ import 'package:restaurent/constants/images.dart';
 import 'package:restaurent/constants/responsive.dart';
 import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/providers/auth_provider.dart';
+import 'package:restaurent/providers/cart_provider.dart';
 import 'package:restaurent/providers/category_provider.dart';
 import 'package:restaurent/providers/food_provider.dart';
 import 'package:restaurent/providers/menu_provider.dart';
+import 'package:restaurent/providers/user_provider.dart';
 import 'package:restaurent/screens/cart/cart_screen.dart';
 import 'package:restaurent/screens/home/widgets/category.dart';
 import 'package:restaurent/screens/home/widgets/category_food_list.dart';
@@ -31,20 +34,19 @@ class OrderFood extends ConsumerStatefulWidget {
 }
 
 class _OrderFoodState extends ConsumerState<OrderFood> {
-
-
-
   @override
   Widget build(BuildContext context) {
     final categoryAsync = ref.watch(catListProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final foodItems = ref.watch(foodListProvider(selectedCategoryId));
-        final user = ref.watch(authProvider);
-
+    final user = ref.watch(authProvider);
+    final userDetail = ref.watch(userProvider);
 
     final categoriesAsync = ref.watch(menuCategoriesProvider);
     final breakfastAsync = ref.watch(breakfastItemsProvider);
     final recommendedAsync = ref.watch(recommendedBreakfastsProvider);
+    final cartItems = ref.watch(cartProvider);
+
     Future<void> logout(BuildContext context) async {
       final supabase = Supabase.instance.client;
       await supabase.auth.signOut();
@@ -81,15 +83,23 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    text: Strings.deliverto,
+                    text: userDetail!.fullName,
                     fontSize: 12,
                     color: AppColors.white,
                   ),
-                  CustomText(
-                      text: Strings.dummyuser,
-                      fontSize: 16,
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold),
+               CustomText(
+  text: userDetail.address,
+  fontSize: 12,
+  color: AppColors.white,
+  fontWeight: FontWeight.bold,
+  maxLines: 2,
+  overflow: TextOverflow.ellipsis,
+  width: 100,
+),
+               
+               
+               
+               
                 ],
               ),
             ],
@@ -99,28 +109,43 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
           IconButton(
             icon: Icon(Icons.notifications, color: AppColors.white),
             onPressed: () {
-
-   Navigator.push(
-     context,
-     MaterialPageRoute(builder: (context) => TableSelectionScreen()),
-   );
-
-
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.shopping_cart, color: AppColors.white),
-            onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CartScreen()),
+                MaterialPageRoute(builder: (context) => TableSelectionScreen()),
               );
             },
+          ),
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.shopping_cart, color: AppColors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CartScreen()),
+                  );
+                },
+              ),
+              if (cartItems.isNotEmpty)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: badges.Badge(
+                    badgeContent: Text(
+                      cartItems.length.toString(),
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: Colors.red,
+                    ),
+                  ),
+                ),
+            ],
           ),
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () => logout(context),
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -153,7 +178,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 ],
               ),
               CustomSizedBox.h40,
-              if (user != null) 
+              if (user != null)
                 CategoryFoodList(
                   categoryAsync: categoryAsync,
                   foodItems: foodItems,
@@ -174,7 +199,10 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 ),
               ),
               SizedBox(height: 10),
-              CombinationBreakfastList(breakfastAsync: breakfastAsync),
+                            if (user != null)
+
+              CombinationBreakfastList(breakfastAsync: breakfastAsync,user: user,
+),
               Container(
                 padding:
                     EdgeInsets.only(left: 20, right: 20, bottom: 30, top: 20),
@@ -185,7 +213,9 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              RecommendedFoodList(recommendedAsync: recommendedAsync)
+                                          if (user != null)
+
+              RecommendedFoodList(recommendedAsync: recommendedAsync, user :user)
             ],
           ),
         ),

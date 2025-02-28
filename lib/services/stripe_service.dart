@@ -40,7 +40,7 @@ class StripeService {
       await _processPayment();
 
       // Insert order and payment details into Supabase
-      final orderId = await _insertOrder(totalPrice, userAddress);
+      final orderId = await _insertOrder(totalPrice, userAddress, orderItems);
       if (orderId != null) {
         await _insertOrderItems(orderId, orderItems, totalPrice);
         await _insertPayment(orderId, totalPrice, paymentIntentClientSecret, context, userId);
@@ -99,7 +99,7 @@ class StripeService {
 
   
   
-  Future<String?> _insertOrder(double totalAmount, String deliveryAddress) async {
+  Future<String?> _insertOrder(double totalAmount, String deliveryAddress, List<Map<String, dynamic>> orderItems) async {
   final supabase = Supabase.instance.client;
 
   final response = await supabase

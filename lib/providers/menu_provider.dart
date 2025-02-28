@@ -9,6 +9,8 @@ final menuCategoriesProvider = FutureProvider((ref) async {
   return response;
 });
 
+
+
 final breakfastItemsProvider = FutureProvider((ref) async {
   final supabase = ref.read(supabaseProvider);
   final response = await supabase

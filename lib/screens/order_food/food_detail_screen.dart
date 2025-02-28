@@ -7,7 +7,8 @@ import 'package:restaurent/screens/cart/cart_screen.dart';
 
 class FoodDetailScreens extends ConsumerStatefulWidget {
   final Map<String, dynamic> food;
-  const FoodDetailScreens({super.key, required this.food});
+  final String type;
+  const FoodDetailScreens({super.key, required this.food, required this.type});
 
   @override
   ConsumerState<FoodDetailScreens> createState() => _FoodState();
@@ -19,12 +20,13 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
   @override
   void initState() {
     super.initState();
+    print('food detail ${widget.food}');
 
     Future.microtask(() => fetchReviews());
   }
 
   void fetchReviews() async {
-    final user = ref.read(authProvider); 
+    final user = ref.read(authProvider);
     if (user == null) return;
 
     final result = await ref.read(foodReviewsProvider({
@@ -65,12 +67,12 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
+        // actions: [
+        // IconButton(
+        // icon: Icon(Icons.shopping_cart, color: Colors.white),
+        // onPressed: () {},
+        // ),
+        // ],
       ),
       body: Stack(
         children: [
@@ -138,7 +140,7 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                         children: [
                           _buildRatingStars(widget.food['rating'] ?? 0),
                           Text(
-                            '${widget.food['rating']}',
+                            '${widget.food['rating'] ?? 0}',
                             style: TextStyle(color: Colors.grey, fontSize: 12),
                           )
                         ],
@@ -147,7 +149,7 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                       Align(
                         alignment: Alignment.center,
                         child: Text(
-                          '₹ ${widget.food['price']}',
+                          '₹ ${widget.food['price'] ?? '0'}',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -159,7 +161,8 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                       Padding(
                         padding: EdgeInsets.all(10.0),
                         child: Text(
-                          widget.food['description'],
+                          widget.food['description'] ??
+                              'No description available',
                           style:
                               TextStyle(color: Colors.grey[400], fontSize: 14),
                         ),
@@ -169,11 +172,13 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _buildStatCard(
-                              widget.food['carbs_grams'].toString(), 'Carbs'),
+                              (widget.food['carbs_grams'] ?? 0).toString(),
+                              'Carbs'),
                           _buildStatCard(
-                              widget.food['fat_grams'].toString(), 'Fat'),
+                              (widget.food['fat_grams'] ?? 0).toString(),
+                              'Fat'),
                           _buildStatCard(
-                              widget.food['protein_grams'].toString(),
+                              (widget.food['protein_grams'] ?? 0).toString(),
                               'Protein'),
                         ],
                       ),
@@ -199,9 +204,23 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                               ),
                             ),
                             onPressed: () {
-                              ref
-                                  .read(cartProvider.notifier)
-                                  .addToCart(user!.id, widget.food['id'], 1);
+                              if (widget.type == 'recommended') {
+                                ref.read(cartProvider.notifier).addToCart(
+                                    user!.id,
+                                    recommendedBreakfastId: widget.food['id'],
+                                    quantity: 1);
+                              } else if (widget.type == 'combination') {
+                                ref.read(cartProvider.notifier).addToCart(
+                                    user!.id,
+                                    combinationBreakfastId: widget.food['id'],
+                                    quantity: 1);
+                              } else {
+                                ref.read(cartProvider.notifier).addToCart(
+                                    user!.id,
+                                    foodId: widget.food['id'],
+                                    quantity: 1);
+                              }
+
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -234,7 +253,31 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                                 ),
                               ),
                               Text(
-                                widget.food['ingredients'],
+                                widget.food['ingredients'] ??
+                                    'No ingredients available',
+                                style: TextStyle(
+                                    color: Colors.grey[400], fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Terms & Conditions Of Storage',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'These terms and conditions forms an integral part of the Restaurant Information Form mentioned in Schedule A for Contactless Dining and constitute a legally binding agreement made between you, whether personally or on behalf of an entity (the "Restaurant"), and Times Internet Limited for its business division- Dineout ("Inresto"), wherein the Restaurant agrees to make Contactless Dining available at the Restaurant for the Customer.',
                                 style: TextStyle(
                                     color: Colors.grey[400], fontSize: 14),
                               ),
@@ -245,6 +288,8 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                       SizedBox(height: 10),
                       Center(
                         child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
                               'Reviews',
@@ -254,70 +299,69 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(
-                              height: 200,
-                              child: ListView.builder(
-                                itemCount: reviews.length,
-                                itemBuilder: (context, index) {
-                                  final review = reviews[index];
-                                  return Card(
-                                    color: Colors.grey.shade900,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    margin: EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 16),
-                                    child: Padding(
-                                      padding: EdgeInsets.all(12),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 24,
-                                            backgroundImage: NetworkImage(
-                                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn9zilY2Yu2hc19pDZFxgWDTUDy5DId7ITqA&s'),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: reviews.length,
+                              padding: EdgeInsets.zero,
+                              itemBuilder: (context, index) {
+                                final review = reviews[index];
+                                return Card(
+                                  color: Colors.grey.shade900,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 16),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 24,
+                                          backgroundImage: NetworkImage(
+                                              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn9zilY2Yu2hc19pDZFxgWDTUDy5DId7ITqA&s'),
+                                        ),
+                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                review['user_name'],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                    color: Colors.white),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                review['review_text'],
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.white),
+                                              ),
+                                              SizedBox(height: 6),
+                                              Row(
+                                                children: List.generate(
+                                                  review['rating'].toInt(),
+                                                  (index) => Icon(Icons.star,
+                                                      color: Colors.amber,
+                                                      size: 16),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          SizedBox(width: 12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  review['user_name'],
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
-                                                      color: Colors.white),
-                                                ),
-                                                SizedBox(height: 4),
-                                                Text(
-                                                  review['review_text'],
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.white),
-                                                ),
-                                                SizedBox(height: 6),
-                                                Row(
-                                                  children: List.generate(
-                                                    review['rating'].toInt(),
-                                                    (index) => Icon(Icons.star,
-                                                        color: Colors.amber,
-                                                        size: 16),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  );
-                                },
-                              ),
-                            )
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       )

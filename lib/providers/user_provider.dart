@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/model/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 final supabase = Supabase.instance.client;
 
 final userProvider = StateNotifierProvider<AuthNotifier, UserModel?>((ref) {
@@ -13,17 +14,19 @@ class AuthNotifier extends StateNotifier<UserModel?> {
   }
 
   Future<void> loadUser() async {
-    final user = supabase.auth.currentUser;
-    if (user != null) {
-      final response = await supabase
-          .from('users')
-          .select()
-          .eq('id', user.id)
-          .single();
+    try {
+      final user = supabase.auth.currentUser;
+      if (user != null) {
+        final response = await supabase
+            .from('users')
+            .select()
+            .eq('id', user.id)
+            .single();
 
-      if (response != null) {
         state = UserModel.fromMap(response);
-      }
+            }
+    } catch (e) {
+      print('Error loading user: $e');
     }
   }
 
@@ -32,3 +35,4 @@ class AuthNotifier extends StateNotifier<UserModel?> {
     state = null;
   }
 }
+

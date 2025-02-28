@@ -146,7 +146,7 @@ class CategoryFoodList extends ConsumerWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    FoodDetailScreens(food: food),
+                                    FoodDetailScreens(food: food,type : 'food'),
                               ),
                             );
                           },
@@ -187,7 +187,8 @@ class CategoryFoodList extends ConsumerWidget {
                                       Icon(Icons.king_bed,
                                           color: AppColors.grey, size: 20),
                                       CustomText(
-                                        text: '5 kcal',
+                                        text:                         '${food['fat_grams']} kcal',
+
                                         fontSize: 12,
                                         color: AppColors.white70,
                                         fontWeight: FontWeight.w500,
@@ -201,7 +202,7 @@ class CategoryFoodList extends ConsumerWidget {
                                       Icon(Icons.label,
                                           color: Colors.grey, size: 20),
                                       CustomText(
-                                        text: '300 gm',
+                                        text: '${food['carbs_grams']} grams',
                                         fontSize: 12,
                                         color: AppColors.white70,
                                         textAlign: TextAlign.center,
@@ -224,7 +225,7 @@ class CategoryFoodList extends ConsumerWidget {
                                       if (!isInCart) {
                                         ref
                                             .read(cartProvider.notifier)
-                                            .addToCart(user.id, food['id'], 1);
+                                            .addToCart(user.id, foodId: food['id'],  quantity: 1);
                                       }
                                     },
                                     child: Container(

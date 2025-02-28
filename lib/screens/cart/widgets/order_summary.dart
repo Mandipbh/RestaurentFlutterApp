@@ -8,9 +8,8 @@ import 'package:restaurent/widgets/custom_divider.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
 
-class OrderSummary extends StatelessWidget {
-  final List cartItems;
-  final double totalPrice;
+class OrderSummary extends StatefulWidget {
+  final List<Map<String, dynamic>> cartItems;
   final String userId;
   final String location;
   final VoidCallback onEditLocation;
@@ -18,24 +17,73 @@ class OrderSummary extends StatelessWidget {
   const OrderSummary({
     super.key,
     required this.cartItems,
-    required this.totalPrice,
     required this.userId,
     required this.location,
-    required this.onEditLocation,
+    required this.onEditLocation, required int totalPrice, 
   });
 
   @override
-  Widget build(BuildContext context) {
-    double totalPrice = cartItems.fold(0, (sum, item) {
-      double itemPrice = (item['food_items']['price'] ?? 0).toDouble();
-      int quantity = (item['quantity'] ?? 1);
-      return sum + (itemPrice * quantity);
-    });
+  _OrderSummaryState createState() => _OrderSummaryState();
+}
 
+class _OrderSummaryState extends State<OrderSummary> {
+  double totalPrice = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateTotalPrice();
+  }
+
+  void _calculateTotalPrice() {
+    double tempTotal = 0.0;
+
+    for (var item in widget.cartItems) {
+      // Check for both food_items and combination_breakfast
+      var foodItems = item['food_items'];
+      var combinationBreakfast = item['combination_breakfast'];
+      var recommendedBreakfast = item['recommended_breakfast'];
+      
+      // Get price from either food_items or combination_breakfast
+      double itemPrice = 0.0;
+      if (foodItems != null && foodItems['price'] != null) {
+        itemPrice = double.parse(foodItems['price'].toString());
+      } else if (combinationBreakfast != null && combinationBreakfast['price'] != null) {
+        itemPrice = double.parse(combinationBreakfast['price'].toString());
+      }else if (recommendedBreakfast != null && recommendedBreakfast['price'] != null) {
+itemPrice = double.parse(recommendedBreakfast['price'].toString());
+      }
+      
+      int quantity = item['quantity'] ?? 1;
+      tempTotal += (itemPrice * quantity);
+    }
+
+    setState(() {
+      totalPrice = tempTotal;
+    });
+  }
+
+  void _onQuantityChanged() {
+    // Recalculate price when quantity changes
+    setState(() {
+      _calculateTotalPrice();
+    });
+  }
+
+  @override
+  void didUpdateWidget(OrderSummary oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Recalculate if cart items change
+    if (widget.cartItems != oldWidget.cartItems) {
+      _calculateTotalPrice();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     double gstRate = 0.05;
     double gst = totalPrice * gstRate;
     double deliveryFee = 50.0;
-
     double grandTotal = totalPrice + gst + deliveryFee;
 
     return Padding(
@@ -58,8 +106,12 @@ class OrderSummary extends StatelessWidget {
                   color: AppColors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                CustomSizedBox.h5,
-                CartItemList(cartItems: cartItems, userId: userId, isPayment: false,),
+                CartItemList(
+                  cartItems: widget.cartItems,
+                  userId: widget.userId,
+                  isPayment: false,
+                  onQuantityChanged: _onQuantityChanged, // Pass the callback
+                ),
                 CustomSizedBox.h10,
                 CustomDivider(
                   color: Colors.grey[800]!,
@@ -67,18 +119,21 @@ class OrderSummary extends StatelessWidget {
                   indent: ScreenSize.width(context) * 0.00,
                   endIndent: ScreenSize.width(context) * 0.00,
                 ),
+                
                 SizedBox(height: 10),
                 LocationDisplay(
-                  location: location,
-                  onEdit: onEditLocation,
+                  location: widget.location,
+                  onEdit: widget.onEditLocation,
                 ),
                 SizedBox(height: 10),
+              
                 CustomDivider(
                   color: Colors.grey[800]!,
                   thickness: 1.5,
                   indent: ScreenSize.width(context) * 0.00,
                   endIndent: ScreenSize.width(context) * 0.00,
                 ),
+              
                 SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.all(8.0),

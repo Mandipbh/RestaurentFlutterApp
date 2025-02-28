@@ -50,7 +50,7 @@ class OrderTotalSummary extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.only(top: 40, bottom: 10, left: 20, right: 20),
+            padding: EdgeInsets.only(top: 40, bottom: 10, left: 10, right: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -70,7 +70,7 @@ class OrderTotalSummary extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

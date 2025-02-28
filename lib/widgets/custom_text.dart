@@ -9,6 +9,9 @@ class CustomText extends StatelessWidget {
     this.onTap,
     this.fontWeight,
     this.textAlign,
+    this.maxLines,
+    this.overflow,
+    this.width,
   });
 
   final String text;
@@ -17,11 +20,16 @@ class CustomText extends StatelessWidget {
   final Function()? onTap;
   final FontWeight? fontWeight;
   final TextAlign? textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
+  final double? width; // Made width optional
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        onTap: onTap,
+      onTap: onTap,
+      child: SizedBox(
+        width: width, // Optional width constraint
         child: Text(
           text,
           style: TextStyle(
@@ -30,6 +38,10 @@ class CustomText extends StatelessWidget {
             fontWeight: fontWeight,
           ),
           textAlign: textAlign,
-        ));
+          maxLines: maxLines, // Optional maxLines
+          overflow: overflow, // Optional overflow
+        ),
+      ),
+    );
   }
 }

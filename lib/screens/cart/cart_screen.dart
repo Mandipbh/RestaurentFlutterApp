@@ -1,33 +1,50 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurent/constants/colors.dart';
-import 'package:restaurent/providers/auth_provider.dart';
-import 'package:restaurent/providers/cart_provider.dart';
-import 'package:restaurent/screens/cart/widgets/order_summary.dart';
-import 'package:restaurent/screens/navigation/main-navigation.dart';
-import 'package:restaurent/screens/payment/payment_screen.dart';
-import 'package:restaurent/widgets/custom_text.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:restaurent/constants/colors.dart";
+import "package:restaurent/providers/auth_provider.dart";
+import "package:restaurent/providers/cart_provider.dart";
+import "package:restaurent/screens/cart/widgets/order_summary.dart";
+import "package:restaurent/screens/navigation/main-navigation.dart";
+import "package:restaurent/screens/payment/payment_screen.dart";
+import "package:restaurent/widgets/custom_text.dart";
+import "package:supabase_flutter/supabase_flutter.dart";
 
 class CartScreen extends ConsumerStatefulWidget {
-  const CartScreen({super.key});
+  
+  const
+  CartScreen({super.key});
 
   @override
-  _CartScreenState createState() => _CartScreenState();
+  _CartScreenState
+  createState()
+  =>
+  _CartScreenState();
 }
 
 class _CartScreenState extends ConsumerState<CartScreen> {
-  String? _userAddress;
-  String? _userId;
+  String?
+  _userAddress;
+  String?
+  _userId;
 
   @override
-  void initState() {
+  void
+  initState() {
     super.initState();
+
     _fetchUserDetails();
+    final
+    user = ref.read(authProvider);
+    if (user != null) {
+      ref.read(cartProvider.notifier).fetchCart(user.id);
+    }
   }
 
-  Future<void> _fetchUserDetails() async {
+  Future<void>
+  _fetchUserDetails()
+  async {
     final user = ref.read(authProvider);
+
     if (user != null) {
       final supabase = Supabase.instance.client;
       final response = await supabase
@@ -46,12 +63,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget
+  build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
     final user = ref.watch(authProvider);
-
-    print('User data: $user');
-    print('User Address: $_userAddress');
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -61,15 +76,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           style: TextStyle(color: AppColors.white),
         ),
         backgroundColor: AppColors.black,
-         leading: IconButton(
-   icon: Icon(Icons.arrow_back, color: AppColors.white),
-   onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> MainNavigation() )),
- ),   
-   
-   
-   
-   
-   
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.white),
+          onPressed: () => Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => MainNavigation())),
+        ),
       ),
       body: cartItems.isEmpty
           ? Container(
@@ -95,78 +106,80 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       location: _userAddress ?? 'No address available',
                       onEditLocation: () {},
                     ),
-                  
-                  
-                  
-                  
-                  ElevatedButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentScreen(
-          totalPrice: calculateTotalAmount(cartItems), // Pass calculated total price
-          userAddress: _userAddress ?? "No address available",
-          userId: _userId ?? '',
-          cartItems: cartItems
-        ),
-      ),
-    );
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.grey.shade900,
-    minimumSize: Size(double.infinity, 50),
-  ),
-  child: Text(
-    "Order Now",
-    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-  ),
-),
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
+                    ElevatedButton(
+                      onPressed: () {
+
+                
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentScreen(
+                                totalPrice: calculateTotalAmount(cartItems),
+                                userAddress:
+                                    _userAddress ?? "No address available",
+                                userId: _userId ?? '',
+                                cartItems: cartItems),
+                          ),
+                        );
+                              },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey.shade900,
+                        minimumSize: Size(double.infinity, 50),
+                      ),
+                      child: Text(
+                        "Order Now",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
     );
   }
-  // lib/utils/cart_utils.dart
 
-  double calculateTotalAmount(List<Map<String, dynamic>> cartItems) {
+  double
+  calculateTotalAmount(List<Map<String, dynamic>> cartItems) {
     double subtotal = 0.0;
     double gst = 0.0;
-    double deliveryFee = 30.0; // You can make this configurable
+    double deliveryFee = 30.0; 
 
-    // Calculate subtotal
     for (var item in cartItems) {
-      double price = double.parse(item['food_items']['price'].toString());
-      int quantity = item['quantity'] as int;
+      double price = 0.0;
+      if (item['food_items'] != null && item['food_items']['price'] != null) {
+        price = double.parse(item['food_items']['price'].toString());
+      } else if (item['combination_breakfast'] != null && item['combination_breakfast']['price'] != null) {
+        price = double.parse(item['combination_breakfast']['price'].toString());
+      } else if (item['recommended_breakfast'] != null && item['recommended_breakfast']['price'] != null) {
+ price = double.parse(item['recommended_breakfast']['price'].toString());
+      }
+      
+      int quantity = item['quantity'] as int? ?? 1;
       subtotal += price * quantity;
     }
 
-    // Calculate GST (assuming 5% GST)
     gst = subtotal * 0.05;
-
-    // Total amount including GST and delivery fee
     double totalAmount = subtotal + gst + deliveryFee;
-
     return totalAmount;
   }
 
-  Map<String, double> getOrderBreakdown(List<Map<String, dynamic>> cartItems) {
+  Map<String, double>
+  getOrderBreakdown(List<Map<String, dynamic>> cartItems) {
     double subtotal = 0.0;
 
-    // Calculate subtotal
     for (var item in cartItems) {
-      double price = double.parse(item['food_items']['price'].toString());
+      double price = 0.0;
+      if (item['food_items'] != null && item['food_items']['price'] != null) {
+        price = double.parse(item['food_items']['price'].toString());
+      } else if (item['combination_breakfast'] != null && item['combination_breakfast']['price'] != null) {
+        price = double.parse(item['combination_breakfast']['price'].toString());
+      }else if (item['recommended_breakfast'] != null && item['recommended_breakfast']['price'] != null) {
+price = double.parse(item['recommended_breakfast']['price'].toString());
+      }
+      
       int quantity = item['quantity'] as int;
       subtotal += price * quantity;
     }
@@ -184,3 +197,4 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     };
   }
 }
+
