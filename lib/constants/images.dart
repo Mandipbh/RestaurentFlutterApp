@@ -11,4 +11,10 @@ class Images {
   //Home Screen
   static const String circleavatar_bg = 'assets/select_category/profile.png';
   static const String banner = 'assets/select_category/banner.png';
+
+  //Reserve Table
+  static const String reserve_table_bg =
+      'assets/select_category/reserve_table.png';
+  static const String reserve_table_no =
+      'assets/select_category/nos_tables.png';
 }

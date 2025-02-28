@@ -1,8 +1,8 @@
 class City {
   final String id;
   final String name;
-  final String state;
-  final String country;
+  final String? state;
+  final String? country;
 
   City({
     required this.id,

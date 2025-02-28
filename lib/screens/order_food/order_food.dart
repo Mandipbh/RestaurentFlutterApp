@@ -109,10 +109,10 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
           IconButton(
             icon: Icon(Icons.notifications, color: AppColors.white),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TableSelectionScreen()),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => TableSelectionScreen()),
+              // );
             },
           ),
           Stack(

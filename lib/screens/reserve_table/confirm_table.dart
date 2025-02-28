@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:restaurent/constants/colors.dart';
+import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/screens/reserve_table/table_confirm_success.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 
-class ConfirmedTable extends StatelessWidget {
-  final String restaurantName;
-  final String date;
-  final String time;
-  final int numberOfPeople;
+class ConfirmedTable extends ConsumerWidget {
+  final String? cityName;
+  final String? restaurantName;
+  final DateTime? date;
+  final String? time;
+  final int? numberOfPeople;
 
-  const ConfirmedTable({
-    Key? key,
-    required this.restaurantName,
-    required this.date,
-    required this.time,
-    required this.numberOfPeople,
-  }) : super(key: key);
+  const ConfirmedTable(
+      {Key? key,
+      required this.restaurantName,
+      required this.date,
+      required this.time,
+      required this.numberOfPeople,
+      required this.cityName})
+      : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.read(authProvider);
+    final userName = user?.userMetadata?['full_name'] ?? 'Guest';
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -44,9 +51,16 @@ class ConfirmedTable extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _buildDetailRow("Name", userName),
+                const Divider(color: Color(0xFF414146)),
                 _buildDetailRow("Restaurant", restaurantName),
                 const Divider(color: Color(0xFF414146)),
-                _buildDetailRow("Date", date),
+                // _buildDetailRow("Date", date),
+                _buildDetailRow(
+                  "Date",
+                  DateFormat('MMMM d, yyyy').format(date!),
+                ),
+
                 const Divider(color: Color(0xFF414146)),
                 _buildDetailRow("Time", time),
                 const Divider(color: Color(0xFF414146)),
@@ -56,18 +70,6 @@ class ConfirmedTable extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
-          Center(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Image.asset(
-                'assets/select_category/nos_tables.png',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
           const Spacer(),
           Container(
             decoration: const BoxDecoration(
@@ -92,7 +94,8 @@ class ConfirmedTable extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => ConfirmedTableSuccess()),
+                    MaterialPageRoute(
+                        builder: (context) => ConfirmedTableSuccess()),
                   );
                 },
                 child: const Text(
@@ -107,7 +110,7 @@ class ConfirmedTable extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String? label, String? value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -116,12 +119,12 @@ class ConfirmedTable extends StatelessWidget {
           SizedBox(
             width: 120,
             child: Text(
-              label,
+              label!,
               style: TextStyle(color: Colors.grey[400], fontSize: 16),
             ),
           ),
           Text(
-            value,
+            value!,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ],

@@ -1,14 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/constants/colors.dart';
+import 'package:restaurent/constants/strings.dart';
+import 'package:restaurent/model/reservation_table.dart';
+import 'package:restaurent/providers/reserved_table.dart';
+import 'package:restaurent/screens/reserve_table/confirm_table.dart';
+import 'package:restaurent/widgets/custom_text.dart';
 
-class TableSelectionScreen extends StatefulWidget {
-  const TableSelectionScreen({super.key});
+class TableSelectionScreen extends ConsumerStatefulWidget {
+  final DateTime? date;
+  final String? time;
+  final int? peopleCount;
+  final String? restaurantId;
+  final String? restaurantName;
+  final String? city;
+  final List<Map<String, dynamic>>? reservations;
+  const TableSelectionScreen(
+      {super.key,
+      required this.date,
+      required this.time,
+      required this.peopleCount,
+      required this.restaurantId,
+      required this.restaurantName,
+      required this.city,
+      required this.reservations});
 
   @override
   _TableSelectionScreenState createState() => _TableSelectionScreenState();
 }
 
-class _TableSelectionScreenState extends State<TableSelectionScreen> {
+class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
   List<TableModel> tables = [
     TableModel(id: "1", seatCount: 4, isMerged: false),
     TableModel(id: "2", seatCount: 6, isMerged: false),
@@ -33,13 +54,11 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
 
       if (!targetTable.isMerged && !draggedTable.isMerged) {
         int newSeatCount = targetTable.seatCount + draggedTable.seatCount;
-
         if (newSeatCount <= 12) {
           targetTable.seatCount = newSeatCount;
           targetTable.isMerged = true;
-          tables.remove(draggedTable);
+          draggedTable.isMerged = true; // Mark both tables as merged
         } else {
-          // Show error if seat count exceeds 12
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Maximum seat count per table is 12!")),
           );
@@ -53,7 +72,10 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
       var table = tables.firstWhere((table) => table.id == tableId);
       if (table.isMerged) {
         // Find the original table that was merged
-        var originalTable = TableModel(id: "temp", seatCount: table.seatCount - 2, isMerged: false); // Example logic
+        var originalTable = TableModel(
+            id: "temp",
+            seatCount: table.seatCount - 2,
+            isMerged: false); // Example logic
         tables.add(originalTable);
         table.isMerged = false;
         table.seatCount -= 2; // Adjust the seat count accordingly
@@ -63,7 +85,11 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
 
   void selectTable(String tableId) {
     setState(() {
-      selectedTableId = tableId;
+      if (selectedTableId == tableId) {
+        selectedTableId = null;
+      } else {
+        selectedTableId = tableId;
+      }
     });
   }
 
@@ -71,7 +97,7 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
     setState(() {
       var table = tables.firstWhere((table) => table.id == tableId);
       if (!table.isBooked) {
-        table.isBooked = true; // Mark the table as booked
+        table.isBooked = true;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Table is already booked!")),
@@ -80,57 +106,136 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
     });
   }
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.black,
       appBar: AppBar(
-        title: Text("Choose Table", style: TextStyle(color: AppColors.white)),
+        title: CustomText(
+            text: Strings.choose_table, fontSize: 22, color: AppColors.white),
         backgroundColor: AppColors.black,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Center(
-        child: GridView.builder(
-          padding: EdgeInsets.all(20),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: tables.length,
-          itemBuilder: (context, index) {
-            return Draggable<String>(
-              data: tables[index].id,
-              feedback: Opacity(
-                opacity: 0.7,
-                child: buildTableBox(tables[index], true),
-              ),
-              childWhenDragging: Opacity(opacity: 0.3, child: buildTableBox(tables[index], false)),
-              child: DragTarget<String>(
-                onWillAcceptWithDetails: (draggedId) => draggedId != tables[index].id,
-                onAcceptWithDetails: (details) => mergeTables(tables[index].id, details.data),
-                builder: (context, candidateData, rejectedData) {
-                  return GestureDetector(
-                    onTap: () {
-                      if (!tables[index].isBooked) {
-                        bookTable(tables[index].id); // Book the table on tap
-                      }
-                    },
-                    onLongPress: () {
-                      if (tables[index].isMerged) {
-                        unmergeTable(tables[index].id); // Unmerge the table on long press
-                      }
-                    },
-                    child: buildTableBox(tables[index], selectedTableId == tables[index].id),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: GridView.builder(
+                padding: EdgeInsets.all(20),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: tables.length,
+                itemBuilder: (context, index) {
+                  return Draggable<String>(
+                    data: tables[index].id,
+                    feedback: Opacity(
+                      opacity: 0.7,
+                      child: buildTableBox(tables[index], true),
+                    ),
+                    childWhenDragging: Opacity(
+                        opacity: 0.3,
+                        child: buildTableBox(tables[index], false)),
+                    child: DragTarget<String>(
+                      onWillAcceptWithDetails: (draggedId) =>
+                          draggedId != tables[index].id,
+                      onAcceptWithDetails: (details) =>
+                          mergeTables(tables[index].id, details.data),
+                      builder: (context, candidateData, rejectedData) {
+                        return GestureDetector(
+                          onTap: () {
+                            if (!tables[index].isBooked) {
+                              bookTable(tables[index].id);
+                            }
+                            selectTable(tables[index].id);
+                          },
+                          onLongPress: () {
+                            if (tables[index].isMerged) {
+                              unmergeTable(tables[index].id);
+                            }
+                          },
+                          child: buildTableBox(tables[index],
+                              selectedTableId == tables[index].id),
+                        );
+                      },
+                    ),
                   );
                 },
               ),
-            );
-          },
-        ),
+            ),
+          ),
+          if (selectedTableId != null || tables.any((table) => table.isMerged))
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade900,
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      List<int> selectedTableIds = [];
+                      if (tables.any((table) => table.isMerged)) {
+                        var mergedTables =
+                            tables.where((table) => table.isMerged).toList();
+                        selectedTableIds = mergedTables
+                            .map((table) => int.parse(table.id))
+                            .toList();
+                      } else if (selectedTableId != null) {
+                        selectedTableIds = [int.parse(selectedTableId!)];
+                      }
+
+                      await ref
+                          .read(reservationsProvider.notifier)
+                          .reserveTable(
+                            cityName: widget.city,
+                            restaurantId: widget.restaurantId,
+                            restaurantName: widget.restaurantName,
+                            date: widget.date,
+                            time: widget.time,
+                            peopleCount: widget.peopleCount,
+                            selectedTableId: selectedTableIds,
+                            isMerge: selectedTableIds.length > 1,
+                          );
+
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Table reserved successfully!')),
+                      );
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ConfirmedTable(
+                            restaurantName: widget.restaurantName,
+                            date: widget.date,
+                            time: widget.time,
+                            numberOfPeople: widget.peopleCount,
+                            cityName: widget.city,
+                          ),
+                        ),
+                      );
+                    },
+                    child: CustomText(
+                      text: Strings.next,
+                      fontSize: 16,
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -148,7 +253,11 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
       width: 120,
       height: 120,
       decoration: BoxDecoration(
-        color: table.isBooked ? Colors.red : (isSelected ? Colors.blueAccent : Colors.black),
+        color: table.isBooked
+            ? AppColors.red
+            : (selectedTableId == table.id
+                ? AppColors.blueAccent
+                : AppColors.black),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(
@@ -158,23 +267,26 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
             width: 100,
             height: 60,
             decoration: BoxDecoration(
-              color: table.isMerged ? Colors.orange.withOpacity(0.5) : Colors.grey.shade900,
+              color: table.isMerged
+                  ? AppColors.orange_opc5
+                  : AppColors.searchbgcolor900,
               borderRadius: BorderRadius.circular(8),
             ),
           ),
           Center(
-            child: Text(
-              table.seatCount.toString(),
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ),
+              child: CustomText(
+            text: table.seatCount.toString(),
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white,
+          )),
           Positioned.fill(
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Stack(
                 children: List.generate(table.seatCount, (index) {
-                  double offsetX = (index % columns) * 15.0; // Horizontal offset
-                  double offsetY = (index ~/ columns) * 15.0; // Vertical offset
+                  double offsetX = (index % columns) * 15.0;
+                  double offsetY = (index ~/ columns) * 15.0;
 
                   return Positioned(
                     left: offsetX,
@@ -184,15 +296,20 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
                       height: 30,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(width: 2.0, color: table.isMerged ? Colors.black : Colors.grey.shade800),
-                        color: table.isMerged ? Colors.orange : Colors.grey.shade900,
+                        border: Border.all(
+                            width: 2.0,
+                            color: table.isMerged
+                                ? AppColors.black
+                                : AppColors.searchbgcolor800),
+                        color: table.isMerged
+                            ? AppColors.orange
+                            : AppColors.searchbgcolor900,
                       ),
                       child: Center(
-                        child: Text(
-                          (index + 1).toString(),
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                      ),
+                          child: CustomText(
+                              text: (index + 1).toString(),
+                              fontSize: 12,
+                              color: AppColors.white)),
                     ),
                   );
                 }),
@@ -203,13 +320,4 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
       ),
     );
   }
-}
-
-class TableModel {
-  String id;
-  int seatCount;
-  bool isMerged;
-  bool isBooked; // New property to track booking status
-
-  TableModel({required this.id, required this.seatCount, this.isMerged = false, this.isBooked = false});
 }

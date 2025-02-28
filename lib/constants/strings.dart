@@ -35,4 +35,25 @@ class Strings {
   static const String combinationbreakfast = 'Combination Breakfast';
   static const String recBreakfast = 'Recommended Breakfast';
   static const String noitems = 'No food items available';
+
+  //Reserve Table
+  static const String reserve_table_text = 'RESERVE A TABLE';
+  static const String reserve_table_desc =
+      "Reserve a table at Paragon right now";
+  static const String hello = 'Hello, ';
+  static const String your_reservations = 'Your Reservations';
+  static const String no_res_yet = 'No reservations yet';
+  static const String date = 'Date:';
+  static const String time = 'Time:';
+  static const String seat = 'Seat:';
+  static const String table = 'Table:';
+  static const String select_res = "Select the restaurant";
+  static const String select_city = "Select your city";
+  static const String error_load_city = "Error loading cities";
+  static const String error_load_restaurant = "No restaurants found";
+  static const String next = "NEXT";
+  static const String res_table_at = 'Reserve a table\nat ';
+  static const String sel_date_res = 'Select the date for reservation';
+  static const String choose_table= 'Choose Tables';
+  // static const String  = '';
 }

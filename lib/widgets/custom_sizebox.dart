@@ -17,7 +17,9 @@ class CustomSizedBox {
   static const SizedBox h45 = SizedBox(height: 45);
   static const SizedBox h50 = SizedBox(height: 50);
   static const SizedBox w4 = SizedBox(width: 4);
+  static const SizedBox w8 = SizedBox(width: 8);
   static const SizedBox w10 = SizedBox(width: 10);
+    static const SizedBox w12 = SizedBox(width: 12);
   static const SizedBox w20 = SizedBox(width: 20);
   static const SizedBox w30 = SizedBox(width: 30);
 }

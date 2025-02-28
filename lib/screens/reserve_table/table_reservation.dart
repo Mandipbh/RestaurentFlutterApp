@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:restaurent/constants/colors.dart';
+import 'package:restaurent/constants/strings.dart';
+import 'package:restaurent/model/city.dart';
 import 'package:restaurent/providers/auth_provider.dart';
-import 'package:restaurent/screens/reserve_table/confirm_table.dart';
+import 'package:restaurent/screens/payment/table_selection.dart';
+import 'package:restaurent/widgets/custom_sizebox.dart';
+import 'package:restaurent/widgets/custom_text.dart';
 
 class TableReservationSelection extends ConsumerStatefulWidget {
   final String selectedRestaurantId;
   final String selectedRestaurantName;
+  final City? selectedCity;
+  final List<Map<String, dynamic>>? reservations;
 
   const TableReservationSelection({
     required this.selectedRestaurantId,
     required this.selectedRestaurantName,
     Key? key,
+    this.reservations,
+    this.selectedCity,
   }) : super(key: key);
 
   @override
@@ -27,7 +36,7 @@ class _TableReservationSelectionState
 
   List<int> dates = [];
   List<String> times = ['6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'];
-  List<int> peopleCount = [1, 2, 3, 4, 5, 6];
+  List<int> peopleCount = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
   bool get isNextEnabled =>
       selectedDate != null && selectedTime != null && selectedPeople != null;
@@ -35,97 +44,72 @@ class _TableReservationSelectionState
   @override
   void initState() {
     super.initState();
-    generateCurrentWeek(); // Generate dates when screen loads
+    generateCurrentWeek();
+
+    if (widget.reservations != null && widget.reservations!.isNotEmpty) {
+      var reservation = widget.reservations!.first;
+
+      // Parse the date string
+      DateTime parsedReservationDate = DateTime.parse(reservation['date']);
+      selectedDate = parsedReservationDate.millisecondsSinceEpoch;
+      selectedTime = reservation['time'];
+      selectedPeople = reservation['no_of_people'];
+    }
   }
 
   void generateCurrentWeek() {
     setState(() {
       dates = List.generate(7, (index) {
-        return DateTime.now().add(Duration(days: index)).day;
+        return DateTime.now().add(Duration(days: index)).millisecondsSinceEpoch;
       });
     });
   }
 
-  bool isLoading = false;
+  List<String> getAvailableTimes() {
+    if (selectedDate == null) return times;
 
-  Future<void> reserveTable() async {
-    try {
-      setState(() => isLoading = true);
-      final user = ref.watch(authProvider);
-      final userMetadata = user?.userMetadata;
-      print('userMetadata: $userMetadata');
-      final userId = userMetadata?['sub'];
-      final userName = userMetadata?['full_name'];
-      print('userData: userId: $userId, userName: $userName');
+    DateTime selectedDateTime =
+        DateTime.fromMillisecondsSinceEpoch(selectedDate!);
+    DateTime now = DateTime.now();
 
-      DateTime reservationDate = DateTime.now().copyWith(day: selectedDate!);
-      String formattedDate = DateFormat('yyyy-MM-dd').format(reservationDate);
-
-      await supabase.from('reservation_table').insert({
-        'restaurant_id': widget.selectedRestaurantId,
-        'restaurant_name': widget.selectedRestaurantName,
-        'user_id': userId,
-        'user_name': userName,
-        'date': formattedDate,
-        'time': selectedTime,
-        'no_of_people': selectedPeople,
-        'table_no': 3,
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Table reserved successfully!')),
-      );
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConfirmedTable(
-            restaurantName: widget.selectedRestaurantName,
-            date: formattedDate,
-            time: selectedTime!,
-            numberOfPeople: selectedPeople!,
-          ),
-        ),
-      );
-    } catch (error) {
-      print('Insertion error: $error');
-    } finally {
-      setState(() => isLoading = false);
+    if (selectedDateTime.year == now.year &&
+        selectedDateTime.month == now.month &&
+        selectedDateTime.day == now.day) {
+      return times.where((time) {
+        DateTime parsedTime = DateFormat('h:mm a').parse(time);
+        DateTime fullDateTime = DateTime(
+            now.year, now.month, now.day, parsedTime.hour, parsedTime.minute);
+        return fullDateTime.isAfter(now);
+      }).toList();
     }
+
+    return times;
   }
+
+  DateTime? globalParsedDate;
 
   @override
   Widget build(BuildContext context) {
-    print('selectedRestaurantIdAnotherScreen ${widget.selectedRestaurantId}');
-    print(
-        'selectedRestaurantNameAnotherScreen ${widget.selectedRestaurantName}');
+    print('TableReservationSelectionCity ${widget.selectedCity}');
+    print('reservationsTableReservation ${widget.reservations}');
+    final user = ref.read(authProvider);
+    final userName = user?.userMetadata?['full_name'] ?? 'Guest';
+
+    //Only showing single date which is selecting
+    // List<int> dates = widget.reservations!
+    //     .map((reservation) =>
+    //         DateTime.parse(reservation['date']).millisecondsSinceEpoch)
+    //     .toSet()
+    //     .toList()
+    //   ..sort();
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          /// Background Image
-          Positioned.fill(
-            child: Column(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.38,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(
-                          'assets/select_category/add_reserve_table.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          /// Scrollable Content
           SafeArea(
             child: Column(
               children: [
-                /// Top Icons
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 10),
@@ -133,7 +117,7 @@ class _TableReservationSelectionState
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Icon(Icons.location_on, color: Colors.white),
-                      SizedBox(width: 10),
+                      CustomSizedBox.w10,
                       Icon(Icons.notifications, color: Colors.white),
                     ],
                   ),
@@ -145,67 +129,63 @@ class _TableReservationSelectionState
                     physics: BouncingScrollPhysics(),
                     child: Padding(
                       padding:
-                          const EdgeInsets.only(top: 80.0, right: 20, left: 20),
+                          const EdgeInsets.only(top: 0.0, right: 20, left: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          /// Spacer for the image
-                          SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.4),
+                          CustomText(
+                              text: Strings.hello + userName,
+                              fontSize: 16,
+                              color: AppColors.white),
+                          CustomSizedBox.h10,
 
-                          /// Welcome Text
-                          Text(
-                            "Hello username!",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            "Reserve a table\nat Paragon",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 20),
+                          CustomText(
+                              text: Strings.res_table_at +
+                                  widget.selectedRestaurantName,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.white),
+                          CustomSizedBox.h20,
 
                           // Select Date
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Select the date for reservation",
-                                  style: TextStyle(color: Colors.white)),
+                              CustomText(
+                                  text: Strings.sel_date_res,
+                                  color: AppColors.white,
+                                  fontSize: 16),
                               GestureDetector(
                                 onTap: generateCurrentWeek,
-                                child: Text(
-                                  "${DateFormat('MMM d').format(DateTime.now())} - ${DateFormat('MMM d').format(DateTime.now().add(Duration(days: 6)))}",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      decoration: TextDecoration.underline),
-                                ),
+                                child: CustomText(
+                                    text:
+                                        '${DateFormat('MMM d').format(DateTime.now())} - ${DateFormat('MMM d').format(DateTime.now().add(Duration(days: 6)))}',
+                                    color: AppColors.white,
+                                    fontSize: 16),
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          CustomSizedBox.h10,
                           buildSelectionRow<int>(dates, selectedDate, (val) {
-                            setState(() => selectedDate = val);
+                            DateTime parsedDate =
+                                DateTime.fromMillisecondsSinceEpoch(val);
+                            setState(() {
+                              selectedDate = val;
+                              selectedTime = null;
+                              globalParsedDate = parsedDate;
+                            });
                           }, isDate: true),
-
-                          SizedBox(height: 20),
-
-                          // Select Time
+                          CustomSizedBox.h20,
                           if (selectedDate != null) ...[
                             Text("Select the time",
                                 style: TextStyle(color: Colors.white)),
                             SizedBox(height: 10),
-                            buildSelectionRow<String>(times, selectedTime,
-                                (val) {
+                            buildSelectionRow<String>(
+                                getAvailableTimes(), selectedTime, (val) {
                               setState(() => selectedTime = val);
-                            }, isDate: false),
+                            }, isDate: false)
                           ],
-
-                          SizedBox(height: 20),
-
-                          /// Select Number of People
+                          CustomSizedBox.h20,
                           if (selectedTime != null) ...[
                             Text("Select the number of people",
                                 style: TextStyle(color: Colors.white)),
@@ -213,40 +193,8 @@ class _TableReservationSelectionState
                             buildSelectionRow<int>(peopleCount, selectedPeople,
                                 (val) {
                               setState(() => selectedPeople = val);
-                            }, isDate: false),
+                            }, isDate: false)
                           ],
-
-                          SizedBox(height: 30),
-
-                          /// NEXT Button
-                          if (isNextEnabled)
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 24),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.grey.shade900,
-                                    padding: EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    reserveTable();
-                                  },
-                                  child: Text(
-                                    'NEXT',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     ),
@@ -257,24 +205,68 @@ class _TableReservationSelectionState
           ),
         ],
       ),
+      floatingActionButton: isNextEnabled
+          ? Container(
+              width: 380,
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade900,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    print('object');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TableSelectionScreen(
+                          date: globalParsedDate,
+                          time: selectedTime,
+                          peopleCount: selectedPeople,
+                          restaurantId: widget.selectedRestaurantId,
+                          restaurantName: widget.selectedRestaurantName,
+                          city: widget.selectedCity?.name,
+                          reservations: widget.reservations,
+                        ),
+                      ),
+                    );
+                  },
+                  child: CustomText(
+                    text: Strings.next,
+                    color: AppColors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 
   Widget buildSelectionRow<T>(
-      List<T> items, T? selectedValue, Function(T) onSelect,
-      {required bool isDate}) {
+    List<T> items,
+    T? selectedValue,
+    Function(T) onSelect, {
+    required bool isDate,
+  }) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: items.map((item) {
           bool isSelected = item == selectedValue;
-
-          // Convert `item` to a date and get the day name
+          String displayText = item.toString();
           String? dayName;
+
           if (isDate && item is int) {
-            DateTime date =
-                DateTime.now().add(Duration(days: item - DateTime.now().day));
-            dayName = DateFormat('EEE').format(date); // Gets short day name
+            DateTime date = DateTime.fromMillisecondsSinceEpoch(item);
+            dayName = DateFormat('EEE').format(date);
+            displayText = "${date.day}";
           }
 
           return GestureDetector(
@@ -283,20 +275,16 @@ class _TableReservationSelectionState
               margin: EdgeInsets.symmetric(horizontal: 5),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.red : Colors.grey[800],
+                color: isSelected ? AppColors.red : AppColors.searchbgcolor800,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
-                  Text(
-                    "$item",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  CustomText(
+                      text: displayText, fontSize: 16, color: AppColors.white),
                   if (isDate && dayName != null)
-                    Text(
-                      dayName,
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
+                    CustomText(
+                        text: dayName, fontSize: 14, color: AppColors.white)
                 ],
               ),
             ),

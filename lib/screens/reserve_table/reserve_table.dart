@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:restaurent/constants/colors.dart';
+import 'package:restaurent/constants/images.dart';
+import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/screens/reserve_table/add_reserve_table.dart';
+import 'package:restaurent/widgets/custom_sizebox.dart';
+import 'package:restaurent/widgets/custom_text.dart';
 
 class ReserveTable extends StatelessWidget {
   @override
@@ -9,7 +14,7 @@ class ReserveTable extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/select_category/reserve_table.png',
+            Images.reserve_table_bg,
             fit: BoxFit.cover,
           ),
           Container(
@@ -17,10 +22,7 @@ class ReserveTable extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.1),
-                  Colors.black.withOpacity(0.7),
-                ],
+                colors: [AppColors.linearG1, AppColors.linearG2],
               ),
             ),
           ),
@@ -38,23 +40,19 @@ class ReserveTable extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    "RESERVE A TABLE",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  CustomText(
+                     text: Strings.reserve_table_text,
+                    fontSize: 24,
+                    color: AppColors.white,
+                     fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Reserve a table at Paragon right now",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
-                    ),
+                  CustomSizedBox.h8,
+                   CustomText(
+                    text: Strings.reserve_table_desc,
+                    fontSize: 16,
+                    color: AppColors.white70
                   ),
-                  SizedBox(height: 16),
+                 CustomSizedBox.h15,
                   Icon(
                     Icons.keyboard_arrow_down,
                     color: Colors.white,
