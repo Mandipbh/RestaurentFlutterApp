@@ -49,8 +49,6 @@ class _AuthScreenState extends State<AuthScreen> {
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
     );
-
-
   }
 
   Future<void> insertUserData(
@@ -150,8 +148,10 @@ class _AuthScreenState extends State<AuthScreen> {
                   if (value == null || value.isEmpty) {
                     return "Password is required";
                   }
-                  if (value.length < 6) {
-                    return "Password must be at least 6 characters";
+                  if (!RegExp(
+                          r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+                      .hasMatch(value)) {
+                    return "Password must be at least 8 characters, include an uppercase letter, lowercase letter, number, and special character.";
                   }
                   return null;
                 },

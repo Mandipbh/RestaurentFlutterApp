@@ -12,6 +12,7 @@ class ConfirmedTable extends ConsumerWidget {
   final DateTime? date;
   final String? time;
   final int? numberOfPeople;
+  final List<int>? tableNos;
 
   const ConfirmedTable(
       {Key? key,
@@ -19,7 +20,8 @@ class ConfirmedTable extends ConsumerWidget {
       required this.date,
       required this.time,
       required this.numberOfPeople,
-      required this.cityName})
+      required this.cityName,
+      this.tableNos})
       : super(key: key);
 
   @override
@@ -66,6 +68,7 @@ class ConfirmedTable extends ConsumerWidget {
                 const Divider(color: Color(0xFF414146)),
                 _buildDetailRow("No of seats", numberOfPeople.toString()),
                 const Divider(color: Color(0xFF414146)),
+                _buildDetailRow("Table No's", tableNos.toString()),
               ],
             ),
           ),

@@ -49,19 +49,39 @@ class _TableReservationSelectionState
     if (widget.reservations != null && widget.reservations!.isNotEmpty) {
       var reservation = widget.reservations!.first;
 
-      // Parse the date string
       DateTime parsedReservationDate = DateTime.parse(reservation['date']);
-      selectedDate = parsedReservationDate.millisecondsSinceEpoch;
+      DateTime dateOnly = DateTime(parsedReservationDate.year,
+          parsedReservationDate.month, parsedReservationDate.day);
+
+      selectedDate = dateOnly.millisecondsSinceEpoch;
       selectedTime = reservation['time'];
       selectedPeople = reservation['no_of_people'];
+      globalParsedDate = dateOnly;
+
+      // Ensure selectedDate is unique
+      if (!dates.contains(selectedDate)) {
+        dates.add(selectedDate!);
+        dates = dates.toSet().toList(); // Remove duplicates
+        dates.sort();
+      }
     }
   }
 
   void generateCurrentWeek() {
     setState(() {
       dates = List.generate(7, (index) {
-        return DateTime.now().add(Duration(days: index)).millisecondsSinceEpoch;
-      });
+        DateTime date = DateTime.now().add(Duration(days: index));
+        return DateTime(date.year, date.month, date.day)
+            .millisecondsSinceEpoch; // Store only the date without time
+      }).toSet().toList(); // Ensure uniqueness
+
+      dates.sort();
+
+      if (selectedDate != null && !dates.contains(selectedDate)) {
+        dates.add(selectedDate!);
+        dates = dates.toSet().toList(); // Ensure uniqueness again
+        dates.sort();
+      }
     });
   }
 
@@ -90,7 +110,6 @@ class _TableReservationSelectionState
 
   @override
   Widget build(BuildContext context) {
-    print('TableReservationSelectionCity ${widget.selectedCity}');
     print('reservationsTableReservation ${widget.reservations}');
     final user = ref.read(authProvider);
     final userName = user?.userMetadata?['full_name'] ?? 'Guest';
@@ -169,12 +188,15 @@ class _TableReservationSelectionState
                           buildSelectionRow<int>(dates, selectedDate, (val) {
                             DateTime parsedDate =
                                 DateTime.fromMillisecondsSinceEpoch(val);
+                            print('selectedDateBefore $val');
                             setState(() {
                               selectedDate = val;
                               selectedTime = null;
                               globalParsedDate = parsedDate;
                             });
+                            print('selectedDateAfter $selectedDate');
                           }, isDate: true),
+
                           CustomSizedBox.h20,
                           if (selectedDate != null) ...[
                             Text("Select the time",
@@ -220,7 +242,6 @@ class _TableReservationSelectionState
                     ),
                   ),
                   onPressed: () {
-                    print('object');
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -255,22 +276,24 @@ class _TableReservationSelectionState
     Function(T) onSelect, {
     required bool isDate,
   }) {
+    // print('Items->>> $items');
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: items.map((item) {
           bool isSelected = item == selectedValue;
           String displayText = item.toString();
-          String? dayName;
 
           if (isDate && item is int) {
             DateTime date = DateTime.fromMillisecondsSinceEpoch(item);
-            dayName = DateFormat('EEE').format(date);
-            displayText = "${date.day}";
+            displayText = DateFormat('dd MMM yyyy').format(date);
           }
 
           return GestureDetector(
-            onTap: () => onSelect(item),
+            onTap: () {
+              onSelect(item);
+            },
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 5),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -282,9 +305,6 @@ class _TableReservationSelectionState
                 children: [
                   CustomText(
                       text: displayText, fontSize: 16, color: AppColors.white),
-                  if (isDate && dayName != null)
-                    CustomText(
-                        text: dayName, fontSize: 14, color: AppColors.white)
                 ],
               ),
             ),

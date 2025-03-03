@@ -18,7 +18,6 @@ import 'package:restaurent/screens/home/widgets/combination_breakfast_list.dart'
 import 'package:restaurent/screens/home/widgets/promo_banner.dart';
 import 'package:restaurent/screens/home/widgets/recommended_breakfast_list.dart';
 import 'package:restaurent/screens/home/widgets/searchbar.dart';
-import 'package:restaurent/screens/payment/table_selection.dart';
 import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/screens/splash/splash.dart';
 import 'package:restaurent/widgets/custom_divider.dart';
@@ -83,23 +82,19 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    text: userDetail!.fullName,
+                    text: userDetail!.fullName ?? 'Guest',
                     fontSize: 12,
                     color: AppColors.white,
                   ),
-               CustomText(
-  text: userDetail.address,
-  fontSize: 12,
-  color: AppColors.white,
-  fontWeight: FontWeight.bold,
-  maxLines: 2,
-  overflow: TextOverflow.ellipsis,
-  width: 100,
-),
-               
-               
-               
-               
+                  CustomText(
+                    text: userDetail.address ?? "No address available",
+                    fontSize: 12,
+                    color: AppColors.white,
+                    fontWeight: FontWeight.bold,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    width: 100,
+                  ),
                 ],
               ),
             ],
@@ -109,10 +104,6 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
           IconButton(
             icon: Icon(Icons.notifications, color: AppColors.white),
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => TableSelectionScreen()),
-              // );
             },
           ),
           Stack(
@@ -126,7 +117,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                   );
                 },
               ),
-              if (cartItems.isNotEmpty)
+              if (cartItems != null && cartItems.isNotEmpty)
                 Positioned(
                   right: 8,
                   top: 8,
@@ -178,7 +169,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 ],
               ),
               CustomSizedBox.h40,
-              if (user != null)
+              if (user != null && categoryAsync.asData?.value != null)
                 CategoryFoodList(
                   categoryAsync: categoryAsync,
                   foodItems: foodItems,
@@ -199,10 +190,11 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 ),
               ),
               SizedBox(height: 10),
-                            if (user != null)
-
-              CombinationBreakfastList(breakfastAsync: breakfastAsync,user: user,
-),
+              if (user != null)
+                CombinationBreakfastList(
+                  breakfastAsync: breakfastAsync,
+                  user: user,
+                ),
               Container(
                 padding:
                     EdgeInsets.only(left: 20, right: 20, bottom: 30, top: 20),
@@ -213,9 +205,9 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-                                          if (user != null)
-
-              RecommendedFoodList(recommendedAsync: recommendedAsync, user :user)
+              if (user != null)
+                RecommendedFoodList(
+                    recommendedAsync: recommendedAsync, user: user)
             ],
           ),
         ),

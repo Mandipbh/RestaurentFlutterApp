@@ -1,9 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart'; // Add this import
+import 'package:permission_handler/permission_handler.dart';
 import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/providers/user_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,17 +20,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  
+
   File? _imageFile;
   bool _isLoading = false;
   String? _currentImageUrl;
-  
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
-  
+
   void _loadUserData() {
     final user = ref.read(userProvider);
     if (user != null) {
@@ -42,39 +41,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _currentImageUrl = user.imageUrl;
     }
   }
-  
+
   Future<bool> _requestPermission(Permission permission) async {
-  final status = await permission.request();
-  return status.isGranted;
-
-  
-}
-
-
- 
- 
- 
- 
- 
- 
- 
- 
-
- 
- 
- 
- 
+    final status = await permission.request();
+    return status.isGranted;
+  }
 
   Future<void> _pickImage() async {
     if (Platform.isAndroid) {
       PermissionStatus status;
-      
+
       if (await Permission.photos.request().isGranted) {
         status = await Permission.photos.status;
       } else {
         status = await Permission.storage.request();
       }
-      
+
       if (!status.isGranted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Permission denied. Cannot access photos.')),
@@ -82,12 +64,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         return;
       }
     }
-     if (Platform.isIOS && !(await _requestPermission(Permission.photos))) {
-   ScaffoldMessenger.of(context).showSnackBar(
-     SnackBar(content: Text('Permission denied. Cannot access photos.')),
-   );
+    if (Platform.isIOS && !(await _requestPermission(Permission.photos))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permission denied. Cannot access photos.')),
+      );
       return;
- }
+    }
     // Now that we have permissions, show the image picker
     try {
       final ImagePicker picker = ImagePicker();
@@ -95,7 +77,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         source: ImageSource.gallery,
         imageQuality: 80, // Reduce image quality to save storage
       );
-      
+
       if (image != null) {
         setState(() {
           _imageFile = File(image.path);
@@ -107,7 +89,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       );
     }
   }
-  
+
   // Add option to take photo with camera
   Future<void> _takePhoto() async {
     if (await Permission.camera.request().isGranted) {
@@ -117,7 +99,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           source: ImageSource.camera,
           imageQuality: 80,
         );
-        
+
         if (photo != null) {
           setState(() {
             _imageFile = File(photo.path);
@@ -134,7 +116,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       );
     }
   }
-  
+
   // Show image source selection dialog
   void _showImageSourceActionSheet() {
     showModalBottomSheet(
@@ -182,52 +164,54 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       },
     );
   }
-  
+
   Future<String?> _uploadImage() async {
     if (_imageFile == null) return _currentImageUrl;
-    
+
     try {
       final supabase = Supabase.instance.client;
       final user = supabase.auth.currentUser;
       if (user == null) return null;
-      
+
       final fileExt = _imageFile!.path.split('.').last;
-      final fileName = '${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      final fileName =
+          '${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
       final filePath = fileName;
-      
+
       await supabase.storage.from('avatars').upload(
-        filePath,
-        _imageFile!,
-        fileOptions: FileOptions(
-          cacheControl: '3600',
-          upsert: true,
-        ),
-      );
-      
+            filePath,
+            _imageFile!,
+            fileOptions: FileOptions(
+              cacheControl: '3600',
+              // upsert: true,
+            ),
+          );
+
       return filePath;
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error uploading image: $e')),
       );
+      print('Error uploading image: $e');
       return null;
     }
   }
-  
+
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final supabase = Supabase.instance.client;
       final user = supabase.auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
-      
+
       // Upload image if selected
       final profilePicPath = await _uploadImage();
-      
+
       // Update user data
       await supabase.from('users').update({
         'full_name': _fullNameController.text,
@@ -236,7 +220,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         'address': _addressController.text,
         'profile_pic': profilePicPath,
       }).eq('id', user.id);
-      
+
       // Refresh user data in provider
       if (mounted) {
         ref.read(userProvider.notifier).loadUser();
@@ -250,6 +234,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error updating profile: $e')),
         );
+        print('Error updating profile: $e');
       }
     } finally {
       if (mounted) {
@@ -259,11 +244,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
-    
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -284,16 +269,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: _showImageSourceActionSheet, // Updated to show options
+                      onTap:
+                          _showImageSourceActionSheet, // Updated to show options
                       child: Stack(
                         children: [
                           CircleAvatar(
                             radius: 60,
                             backgroundImage: _imageFile != null
                                 ? FileImage(_imageFile!) as ImageProvider
-                                : (_currentImageUrl != null && _currentImageUrl!.isNotEmpty
-                                    ? NetworkImage(_getImageUrl(_currentImageUrl!)) as ImageProvider
-                                    : AssetImage('assets/images/default_avatar.png') as ImageProvider),
+                                : (_currentImageUrl != null &&
+                                        _currentImageUrl!.isNotEmpty
+                                    ? NetworkImage(
+                                            _getImageUrl(_currentImageUrl!))
+                                        as ImageProvider
+                                    : AssetImage(
+                                            'assets/select_category/dosa.jpg')
+                                        as ImageProvider),
                           ),
                           Positioned(
                             bottom: 0,
@@ -336,7 +327,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value)) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -375,7 +367,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             onPressed: _updateProfile,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
-                              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 50, vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
@@ -395,12 +388,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ),
     );
   }
-  
+
   String _getImageUrl(String path) {
     final supabase = Supabase.instance.client;
     return supabase.storage.from('avatars').getPublicUrl(path);
   }
-  
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -433,7 +426,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _fullNameController.dispose();
@@ -443,4 +436,3 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 }
-

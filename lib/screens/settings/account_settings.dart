@@ -71,7 +71,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               radius: 40,
               backgroundImage: user.imageUrl != null && user.imageUrl!.isNotEmpty
                   ? NetworkImage(_getImageUrl(user.imageUrl!))
-                  : AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                  : AssetImage('assets/select_category/dosa.jpg') as ImageProvider,
             ),
             SizedBox(height: 10),
             Text(

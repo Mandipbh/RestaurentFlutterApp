@@ -47,6 +47,25 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
 
   String? selectedTableId;
 
+  Set<String> selectedTableIds = {}; // Store selected tables globally
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.reservations != null && widget.reservations!.isNotEmpty) {
+      // Extract all reserved table numbers and store them in a Set
+      selectedTableIds = widget.reservations!
+          .expand((res) => (res['table_no'] as List)
+              .map((table) => table.toString())) // Convert table_no to String
+          .toSet();
+
+      setState(() {}); // Update UI with selected tables
+
+      print("Reserved Tables: $selectedTableIds"); // Debugging
+    }
+  }
+
   void mergeTables(String targetId, String draggedId) {
     setState(() {
       var targetTable = tables.firstWhere((table) => table.id == targetId);
@@ -110,6 +129,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('reservationTableSelection ${widget.reservations}');
     return Scaffold(
       backgroundColor: AppColors.black,
       appBar: AppBar(
@@ -223,6 +243,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                             time: widget.time,
                             numberOfPeople: widget.peopleCount,
                             cityName: widget.city,
+                            tableNos: selectedTableIds,
                           ),
                         ),
                       );
@@ -241,6 +262,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
   }
 
   Widget buildTableBox(TableModel table, bool isSelected) {
+    bool isReserved = selectedTableIds.contains(table.id);
     int columns = table.seatCount <= 4
         ? 2
         : table.seatCount <= 6
@@ -253,11 +275,16 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
       width: 120,
       height: 120,
       decoration: BoxDecoration(
-        color: table.isBooked
+        // color: table.isBooked
+        //     ? AppColors.red
+        //     : (selectedTableId == table.id
+        //         ? AppColors.blueAccent
+        //         : AppColors.black),
+        color: isReserved
             ? AppColors.red
-            : (selectedTableId == table.id
+            : isSelected
                 ? AppColors.blueAccent
-                : AppColors.black),
+                : AppColors.black,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(

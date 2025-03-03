@@ -29,11 +29,22 @@ class _SelectRestaurantState extends ConsumerState<SelectRestaurant> {
     Future.microtask(() {
       ref.read(selectedCityIdProvider.notifier).state = null;
       ref.read(selectedRestaurantIdProvider.notifier).state = null;
+
+      if (widget.reservations != null && widget.reservations!.isNotEmpty) {
+        String? reservedRestaurantId =
+            widget.reservations!.first['restaurant_id'];
+
+        if (reservedRestaurantId != null) {
+          ref.read(selectedRestaurantIdProvider.notifier).state =
+              reservedRestaurantId;
+        }
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    print('SelectRestaurants->>> ${widget.reservations}');
     final cityList = ref.watch(cityProvider);
     final selectedCityId = ref.watch(selectedCityIdProvider);
     final restaurantList = ref.watch(restaurantListProvider(selectedCityId));

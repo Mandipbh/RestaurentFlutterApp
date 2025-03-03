@@ -16,8 +16,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailController =
-      TextEditingController(text: 'kavita@gmail.com');
+  final _emailController = TextEditingController(text: 'kavita@gmail.com');
   final _passwordController = TextEditingController(text: '123456');
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -108,8 +107,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   if (value == null || value.isEmpty) {
                     return "Password is required";
                   }
-                  if (value.length < 6) {
-                    return "Password must be at least 6 characters";
+                  if (!RegExp(
+                          r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+                      .hasMatch(value)) {
+                    return "Password must be at least 8 characters, include an uppercase letter, lowercase letter, number, and special character.";
                   }
                   return null;
                 },

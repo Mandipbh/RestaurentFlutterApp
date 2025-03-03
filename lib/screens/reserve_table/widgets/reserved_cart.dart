@@ -28,6 +28,7 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // print('table->>> $table');
     String formattedDate = DateFormat('MMMM dd, yyyy').format(date);
     return Card(
       color: AppColors.card_color,
