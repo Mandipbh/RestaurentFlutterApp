@@ -296,7 +296,7 @@ class _TableReservationSelectionState
             },
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 5),
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              padding: EdgeInsets.only(left: 15,right: 15, top: 10, bottom: 5),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.red : AppColors.searchbgcolor800,
                 borderRadius: BorderRadius.circular(12),

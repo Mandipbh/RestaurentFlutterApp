@@ -47,7 +47,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
 
   String? selectedTableId;
 
-  Set<String> selectedTableIds = {}; // Store selected tables globally
+  Set<String> selectedTableIds = {};
 
   @override
   void initState() {
@@ -78,9 +78,9 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
           targetTable.isMerged = true;
           draggedTable.isMerged = true; // Mark both tables as merged
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Maximum seat count per table is 12!")),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text("Maximum seat count per table is 12!")),
+          // );
         }
       }
     });
@@ -118,9 +118,9 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
       if (!table.isBooked) {
         table.isBooked = true;
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Table is already booked!")),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text("Table is already booked!")),
+        // );
       }
     });
   }
@@ -193,10 +193,10 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
           ),
           if (selectedTableId != null || tables.any((table) => table.isMerged))
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey.shade900,
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -230,9 +230,9 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                           );
 
                       // ignore: use_build_context_synchronously
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Table reserved successfully!')),
-                      );
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(content: Text('Table reserved successfully!')),
+                      // );
 
                       Navigator.push(
                         context,
@@ -253,9 +253,9 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                       fontSize: 16,
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,
-                    )),
-              ),
-            ),
+                    ),
+                  ),
+                )),
         ],
       ),
     );
@@ -300,13 +300,20 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
+          // Center(
+          //     child: CustomText(
+          //   text: table.seatCount.toString(), //No Material widget found.
+          //   fontSize: 24,
+          //   fontWeight: FontWeight.bold,
+          //   color: AppColors.white,
+          // )),
           Center(
-              child: CustomText(
-            text: table.seatCount.toString(),
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppColors.white,
-          )),
+              child: Text(table.seatCount.toString(),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                  ))),
           Positioned.fill(
             child: Padding(
               padding: const EdgeInsets.all(10),
@@ -316,29 +323,36 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                   double offsetY = (index ~/ columns) * 15.0;
 
                   return Positioned(
-                    left: offsetX,
-                    top: offsetY,
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            width: 2.0,
-                            color: table.isMerged
-                                ? AppColors.black
-                                : AppColors.searchbgcolor800),
-                        color: table.isMerged
-                            ? AppColors.orange
-                            : AppColors.searchbgcolor900,
-                      ),
-                      child: Center(
-                          child: CustomText(
-                              text: (index + 1).toString(),
-                              fontSize: 12,
-                              color: AppColors.white)),
-                    ),
-                  );
+                      left: offsetX,
+                      top: offsetY,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              width: 2.0,
+                              color: table.isMerged
+                                  ? AppColors.black
+                                  : AppColors.searchbgcolor800),
+                          color: table.isMerged
+                              ? AppColors.orange
+                              : AppColors.searchbgcolor900,
+                        ),
+                        child:
+                            // Center(
+                            //     child: CustomText(
+                            //         text: (index + 1).toString(), //No Material widget found.
+                            //         fontSize: 12,
+                            //         color: AppColors.white)),
+                            Center(
+                          child: Text(
+                            (index + 1).toString(),
+                            style:
+                                TextStyle(fontSize: 12, color: AppColors.white),
+                          ),
+                        ),
+                      ));
                 }),
               ),
             ),

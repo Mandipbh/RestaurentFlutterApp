@@ -50,7 +50,7 @@ class Strings {
   static const String select_res = "Select the restaurant";
   static const String select_city = "Select your city";
   static const String error_load_city = "Error loading cities";
-  static const String error_load_restaurant = "No restaurants found";
+  static const String error_load_restaurant = "No restaurants found yet\nSelect the city for restaurants";
   static const String next = "NEXT";
   static const String res_table_at = 'Reserve a table\nat ';
   static const String sel_date_res = 'Select the date for reservation';
