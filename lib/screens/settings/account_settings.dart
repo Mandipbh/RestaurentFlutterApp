@@ -6,6 +6,7 @@ import 'package:restaurent/model/user_model.dart';
 import 'package:restaurent/providers/order_provider.dart';
 import 'package:restaurent/providers/payment_provider.dart';
 import 'package:restaurent/providers/user_provider.dart';
+import 'package:restaurent/screens/navigation/main-navigation.dart';
 import 'package:restaurent/screens/settings/edit_profile_screen.dart';
 import 'package:restaurent/screens/settings/order_history_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -48,7 +49,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainNavigation())),
         ),
         actions: [
           IconButton(
@@ -337,7 +338,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "${payment.status}",
+                              payment.status,
                               style: TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold),

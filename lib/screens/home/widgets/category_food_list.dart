@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gotrue/src/types/user.dart';
 import 'package:restaurent/constants/colors.dart';
-import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/providers/cart_provider.dart';
+import 'package:restaurent/providers/search_provider.dart';
 import 'package:restaurent/screens/order_food/food_detail_screen.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
@@ -26,6 +26,7 @@ class CategoryFoodList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final cart = ref.watch(cartProvider); // Watch the cart state
+    final searchQuery = ref.watch(searchQueryProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,12 +34,19 @@ class CategoryFoodList extends ConsumerWidget {
         // Categories List
         categoryAsync.when(
           data: (categories) {
+            if (categories.isEmpty) {
+              return Center(
+                  child: Text('No categories available',
+                      style: TextStyle(color: Colors.white)));
+            }
+
             final categoryNames =
                 categories.map((cat) => cat["name"] as String).toList();
             final categoryIds =
                 categories.map((cat) => cat["id"] as String).toList();
 
-            if (selectedCategoryId == null && categoryIds.isNotEmpty) {
+            if (ref.read(selectedCategoryIdProvider) == null &&
+                categoryIds.isNotEmpty) {
               ref.read(selectedCategoryIdProvider.notifier).state =
                   categoryIds[0];
             }
@@ -94,30 +102,37 @@ class CategoryFoodList extends ConsumerWidget {
           error: (error, stack) => CustomText(
               text: error.toString(), fontSize: 16, color: AppColors.white),
         ),
-        CustomSizedBox.h35,
+        CustomSizedBox.h10,
 
         // Food Items List
         foodItems.when(
           data: (foods) {
             if (foods.isEmpty) {
               return Center(
-                child: CustomText(
-                  text: Strings.noitems,
-                  fontSize: 16,
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-              );
+                  child: Text('No food items available',
+                      style: TextStyle(color: Colors.white)));
+            }
+
+            // Filter foods based on search query
+            final filteredFoods = foods
+                .where((food) =>
+                    matchesSearchQuery(food['name'] ?? '', searchQuery))
+                .toList();
+
+            if (filteredFoods.isEmpty) {
+              return Center(
+                  child: Text('No matching food items found',
+                      style: TextStyle(color: Colors.white)));
             }
 
             return SizedBox(
               height: 230,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: foods.length,
+                itemCount: filteredFoods.length,
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 itemBuilder: (context, index) {
-                  final food = foods[index];
+                  final food = filteredFoods[index];
 
                   final isInCart =
                       cart.any((item) => item['food_id'] == food['id']);
@@ -146,7 +161,7 @@ class CategoryFoodList extends ConsumerWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    FoodDetailScreens(food: food,type : 'food'),
+                                    FoodDetailScreens(food: food, type: 'food_items'),
                               ),
                             );
                           },
@@ -187,8 +202,7 @@ class CategoryFoodList extends ConsumerWidget {
                                       Icon(Icons.king_bed,
                                           color: AppColors.grey, size: 20),
                                       CustomText(
-                                        text:                         '${food['fat_grams']} kcal',
-
+                                        text: '${food['fat_grams']} kcal',
                                         fontSize: 12,
                                         color: AppColors.white70,
                                         fontWeight: FontWeight.w500,
@@ -225,7 +239,9 @@ class CategoryFoodList extends ConsumerWidget {
                                       if (!isInCart) {
                                         ref
                                             .read(cartProvider.notifier)
-                                            .addToCart(user.id, foodId: food['id'],  quantity: 1);
+                                            .addToCart(user.id,
+                                                foodId: food['id'],
+                                                quantity: 1);
                                       }
                                     },
                                     child: Container(

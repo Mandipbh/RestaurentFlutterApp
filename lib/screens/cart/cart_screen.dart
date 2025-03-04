@@ -15,7 +15,7 @@ class CartScreen extends ConsumerStatefulWidget {
   CartScreen({super.key});
 
   @override
-  _CartScreenState
+  ConsumerState
   createState()
   =>
   _CartScreenState();
@@ -155,6 +155,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         price = double.parse(item['combination_breakfast']['price'].toString());
       } else if (item['recommended_breakfast'] != null && item['recommended_breakfast']['price'] != null) {
  price = double.parse(item['recommended_breakfast']['price'].toString());
+      }else if (item['all_foods'] != null && item['all_food']['price'] != null) {
+price = double.parse(item['all_foods']['price'].toString());
       }
       
       int quantity = item['quantity'] as int? ?? 1;

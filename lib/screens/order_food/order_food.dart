@@ -10,14 +10,15 @@ import 'package:restaurent/providers/cart_provider.dart';
 import 'package:restaurent/providers/category_provider.dart';
 import 'package:restaurent/providers/food_provider.dart';
 import 'package:restaurent/providers/menu_provider.dart';
+import 'package:restaurent/providers/search_provider.dart';
 import 'package:restaurent/providers/user_provider.dart';
 import 'package:restaurent/screens/cart/cart_screen.dart';
-import 'package:restaurent/screens/home/widgets/category.dart';
 import 'package:restaurent/screens/home/widgets/category_food_list.dart';
 import 'package:restaurent/screens/home/widgets/combination_breakfast_list.dart';
 import 'package:restaurent/screens/home/widgets/promo_banner.dart';
 import 'package:restaurent/screens/home/widgets/recommended_breakfast_list.dart';
 import 'package:restaurent/screens/home/widgets/searchbar.dart';
+import 'package:restaurent/screens/order_food/search_results_counter.dart';
 import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/screens/splash/splash.dart';
 import 'package:restaurent/widgets/custom_divider.dart';
@@ -40,11 +41,33 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
     final foodItems = ref.watch(foodListProvider(selectedCategoryId));
     final user = ref.watch(authProvider);
     final userDetail = ref.watch(userProvider);
+    final searchQuery = ref.watch(searchQueryProvider);
 
     final categoriesAsync = ref.watch(menuCategoriesProvider);
     final breakfastAsync = ref.watch(breakfastItemsProvider);
     final recommendedAsync = ref.watch(recommendedBreakfastsProvider);
     final cartItems = ref.watch(cartProvider);
+
+    // Check if any results will be shown based on the current search
+    bool hasNoResults = searchQuery.isNotEmpty && 
+      foodItems.maybeWhen(
+        data: (foods) => foods == null || foods.where((food) => 
+          matchesSearchQuery(food['name'] ?? '', searchQuery)
+        ).isEmpty,
+        orElse: () => false,
+      ) &&
+      breakfastAsync.maybeWhen(
+        data: (foods) => foods == null || foods.where((food) => 
+          matchesSearchQuery(food['name'] ?? '', searchQuery)
+        ).isEmpty,
+        orElse: () => false,
+      ) &&
+      recommendedAsync.maybeWhen(
+        data: (foods) => foods == null || foods.where((food) => 
+          matchesSearchQuery(food['name'] ?? '', searchQuery)
+        ).isEmpty,
+        orElse: () => false,
+      );
 
     Future<void> logout(BuildContext context) async {
       final supabase = Supabase.instance.client;
@@ -78,34 +101,32 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 ),
               ),
               SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text: userDetail!.fullName ?? 'Guest',
-                    fontSize: 12,
-                    color: AppColors.white,
-                  ),
-                  CustomText(
-                    text: userDetail.address ?? "No address available",
-                    fontSize: 12,
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    width: 100,
-                  ),
-                ],
-              ),
+              if (userDetail != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (userDetail.fullName.isNotEmpty)
+                      CustomText(
+                        text: userDetail.fullName,
+                        fontSize: 12,
+                        color: AppColors.white,
+                      ),
+                    if (userDetail.address.isNotEmpty)
+                      CustomText(
+                        text: userDetail.address,
+                        fontSize: 12,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        width: 100,
+                      ),
+                  ],
+                ),
             ],
           ),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.notifications, color: AppColors.white),
-            onPressed: () {
-            },
-          ),
           Stack(
             children: [
               IconButton(
@@ -117,7 +138,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                   );
                 },
               ),
-              if (cartItems != null && cartItems.isNotEmpty)
+              if (cartItems.isNotEmpty)
                 Positioned(
                   right: 8,
                   top: 8,
@@ -152,62 +173,95 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 endIndent: ScreenSize.width(context) * 0.05,
               ),
               SearchBarWidget(
-                hintText: "",
+                hintText: "Search food items...",
                 backgroundColor: AppColors.searchbgcolor900,
                 hintTextColor: AppColors.white60,
                 iconColor: AppColors.white,
                 iconSize: 25.0,
                 textColor: AppColors.white,
               ),
-              CustomSizedBox.h30,
-              PromoBannerWidget(
-                imagePaths: [
-                  Images.banner,
-                  Images.banner,
-                  Images.banner,
-                  Images.banner,
-                ],
-              ),
-              CustomSizedBox.h40,
-              if (user != null && categoryAsync.asData?.value != null)
-                CategoryFoodList(
-                  categoryAsync: categoryAsync,
+
+              if (searchQuery.isNotEmpty && !hasNoResults)
+                SearchResultsCounter(
                   foodItems: foodItems,
-                  user: user,
-                  selectedCategoryIdProvider: selectedCategoryIdProvider,
+                  breakfastItems: breakfastAsync,
+                  recommendedItems: recommendedAsync,
                 ),
-              CustomSizedBox.h40,
-              CategoryListImageTitle(categoriesAsync: categoriesAsync),
-              CustomSizedBox.h20,
-              Container(
-                padding:
-                    EdgeInsets.only(left: 20, right: 20, bottom: 15, top: 40),
-                child: CustomText(
-                  text: Strings.combinationbreakfast,
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              
+              // Show "No results found" message when search has no matches
+              if (hasNoResults)
+                Container(
+                  padding: EdgeInsets.all(20),
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Icon(Icons.search_off, color: Colors.grey, size: 48),
+                      SizedBox(height: 16),
+                      Text(
+                        'No results found for "$searchQuery"',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Try a different search term',
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 10),
-              if (user != null)
-                CombinationBreakfastList(
-                  breakfastAsync: breakfastAsync,
-                  user: user,
+                
+              if (!hasNoResults) ...[
+                CustomSizedBox.h10,
+                PromoBannerWidget(
+                  imagePaths: [
+                    Images.banner,
+                    Images.banner,
+                    Images.banner,
+                    Images.banner,
+                  ],
                 ),
-              Container(
-                padding:
-                    EdgeInsets.only(left: 20, right: 20, bottom: 30, top: 20),
-                child: CustomText(
-                  text: Strings.recBreakfast,
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                CustomSizedBox.h10,
+                if (user != null)
+                  CategoryFoodList(
+                    categoryAsync: categoryAsync,
+                    foodItems: foodItems,
+                    user: user,
+                    selectedCategoryIdProvider: selectedCategoryIdProvider,
+                  ),
+                CustomSizedBox.h10,
+                
+                Container(
+                  padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+                  child: CustomText(
+                    text: Strings.combinationbreakfast,
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              if (user != null)
-                RecommendedFoodList(
-                    recommendedAsync: recommendedAsync, user: user)
+                SizedBox(height: 10),
+                if (user != null)
+                  CombinationBreakfastList(
+                    breakfastAsync: breakfastAsync,
+                    user: user,
+                  ),
+                Container(
+                  padding: EdgeInsets.only(left: 20, bottom: 10, right: 20, top: 10),
+                  child: CustomText(
+                    text: Strings.recBreakfast,
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (user != null)
+                  RecommendedFoodList(
+                    recommendedAsync: recommendedAsync, 
+                    user: user
+                  )
+              ],
             ],
           ),
         ),
@@ -215,3 +269,4 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
     );
   }
 }
+

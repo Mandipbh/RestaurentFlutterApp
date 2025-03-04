@@ -6,7 +6,7 @@ class PromoBannerWidget extends StatelessWidget {
   final PageController _pageController = PageController();
   final List<String> imagePaths;
 
-  PromoBannerWidget({Key? key, required this.imagePaths}) : super(key: key);
+  PromoBannerWidget({super.key, required this.imagePaths});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class PromoBannerWidget extends StatelessWidget {
 
   Widget _buildPageIndicator() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30),
+      padding: const EdgeInsets.only(top: 10),
       child: Center(
         child: SmoothPageIndicator(
           controller: _pageController,

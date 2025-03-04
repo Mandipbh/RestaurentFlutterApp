@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurent/model/all_food_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
@@ -40,3 +41,56 @@ final foodReviewsProvider =
     }
   },
 );
+
+
+final foodItemsProvider = FutureProvider.family<List<AllFood>, String>((ref, restaurantId) async {
+  try {
+    final response = await Supabase.instance.client
+        .from('all_foods')
+        .select()
+        .eq('restaurant_id', restaurantId);
+
+    print("Raw Food Items Response: $response");  // Debugging
+
+    return response.map<AllFood>((json) => AllFood.fromJson(json)).toList();
+  } catch (e) {
+    print("Error fetching food items: $e");
+    return [];
+  }
+});
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

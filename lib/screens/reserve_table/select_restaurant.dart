@@ -14,7 +14,7 @@ final selectedRestaurantIdProvider = StateProvider<String?>((ref) => null);
 class SelectRestaurant extends ConsumerStatefulWidget {
   final List<Map<String, dynamic>>? reservations;
 
-  const SelectRestaurant({Key? key, this.reservations}) : super(key: key);
+  const SelectRestaurant({super.key, this.reservations});
 
   @override
   _SelectRestaurantState createState() => _SelectRestaurantState();
@@ -168,48 +168,46 @@ class _SelectRestaurantState extends ConsumerState<SelectRestaurant> {
                           ),
                         ),
                         onPressed: () {
-                          if (selectedRestaurantId != null) {
-                            final selectedRestaurant = restaurantList.maybeWhen(
-                                data: (restaurants) {
-                                  return restaurants.firstWhere((restaurant) =>
-                                      restaurant.id == selectedRestaurantId);
-                                },
-                                orElse: () => null);
+                          final selectedRestaurant = restaurantList.maybeWhen(
+                              data: (restaurants) {
+                                return restaurants.firstWhere((restaurant) =>
+                                    restaurant.id == selectedRestaurantId);
+                              },
+                              orElse: () => null);
 
-                            if (selectedRestaurant != null) {
-                              final selectedCity = cityList.maybeWhen(
-                                data: (cities) {
-                                  return cities.firstWhere(
-                                      (city) => city.id == selectedCityId,
-                                      orElse: () => City(
-                                          id: '',
-                                          name: 'Unknown',
-                                          state: '',
-                                          country: ''));
-                                },
-                                orElse: () => City(
-                                    id: '',
-                                    name: 'Unknown',
-                                    state: '',
-                                    country: ''),
-                              );
+                          if (selectedRestaurant != null) {
+                            final selectedCity = cityList.maybeWhen(
+                              data: (cities) {
+                                return cities.firstWhere(
+                                    (city) => city.id == selectedCityId,
+                                    orElse: () => City(
+                                        id: '',
+                                        name: 'Unknown',
+                                        state: '',
+                                        country: ''));
+                              },
+                              orElse: () => City(
+                                  id: '',
+                                  name: 'Unknown',
+                                  state: '',
+                                  country: ''),
+                            );
 
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      TableReservationSelection(
-                                          selectedRestaurantId:
-                                              selectedRestaurant.id,
-                                          selectedRestaurantName:
-                                              selectedRestaurant.name,
-                                          selectedCity: selectedCity,
-                                          reservations: widget.reservations),
-                                ),
-                              );
-                            }
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    TableReservationSelection(
+                                        selectedRestaurantId:
+                                            selectedRestaurant.id,
+                                        selectedRestaurantName:
+                                            selectedRestaurant.name,
+                                        selectedCity: selectedCity,
+                                        reservations: widget.reservations),
+                              ),
+                            );
                           }
-                        },
+                                                },
                         child: CustomText(
                           text: Strings.next,
                           color: AppColors.white,
@@ -292,7 +290,7 @@ class _SelectRestaurantState extends ConsumerState<SelectRestaurant> {
                         color: AppColors.white),
                     CustomSizedBox.h4,
                     CustomText(
-                        text: restaurant.address,
+                        text: restaurant.location,
                         fontSize: 14,
                         color: AppColors.white),
                   ],

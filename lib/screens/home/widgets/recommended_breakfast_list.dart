@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/providers/cart_provider.dart';
+import 'package:restaurent/providers/search_provider.dart';
 import 'package:restaurent/screens/order_food/food_detail_screen.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,15 +16,32 @@ class RecommendedFoodList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
+    final searchQuery = ref.watch(searchQueryProvider);
 
     return SizedBox(
       height: 283,
       child: recommendedAsync.when(
-        data: (foodItems) => ListView.builder(
+        data: (foodItems) {
+           if (foodItems.isEmpty) {
+          return Center(child: Text('No recommended items available', style: TextStyle(color: Colors.white)));
+        }
+
+        // Filter recommended items based on search query
+        final filteredItems = foodItems.where((food) => 
+          matchesSearchQuery(food['name'] ?? '', searchQuery)
+        ).toList();
+
+        if (filteredItems.isEmpty && searchQuery.isNotEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(child: Text('No matching recommended items found', style: TextStyle(color: Colors.white))),
+          );
+        }
+         return  ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: foodItems.length,
+          itemCount: filteredItems.length,
           itemBuilder: (context, index) {
-            final food = foodItems[index];
+            final food = filteredItems[index];
             final isInCart = cart
                 .any((item) => item['recommended_breakfast_id'] == food['id']);
             return InkWell(
@@ -31,7 +49,7 @@ class RecommendedFoodList extends ConsumerWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FoodDetailScreens(food: food,type: 'recommended',),
+                    builder: (context) => FoodDetailScreens(food: food,type: 'recommended_breakfast',),
                   ),
                 );
               },
@@ -130,10 +148,13 @@ class RecommendedFoodList extends ConsumerWidget {
               ),
             );
           },
-        ),
+        );
+return null;
+        } ,
         loading: () => Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text("Error: $err")),
       ),
+      
     );
   }
 }

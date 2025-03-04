@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/providers/cart_provider.dart';
+import 'package:restaurent/providers/search_provider.dart';
 import 'package:restaurent/screens/order_food/food_detail_screen.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
@@ -16,18 +17,35 @@ class CombinationBreakfastList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
         final cart = ref.watch(cartProvider); 
+    final searchQuery = ref.watch(searchQueryProvider);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: SizedBox(
-        height: 400,
+        height: 370,
         child: breakfastAsync.when(
-          data: (foodItems) => ListView.builder(
+          data: (foodItems) {
+             if (foodItems.isEmpty) {
+          return Center(child: Text('No breakfast items available', style: TextStyle(color: Colors.white)));
+        }
+
+        // Filter breakfast items based on search query
+        final filteredItems = foodItems.where((food) => 
+          matchesSearchQuery(food['name'] ?? '', searchQuery)
+        ).toList();
+
+        if (filteredItems.isEmpty && searchQuery.isNotEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(child: Text('No matching breakfast items found', style: TextStyle(color: Colors.white))),
+          );
+        }
+        return  ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: foodItems.length,
+            itemCount: filteredItems.length,
             itemBuilder: (context, index) {
-              final food = foodItems[index];
+              final food = filteredItems[index];
                 final isInCart =
       cart.any((item) => item['combination_breakfast_id'] == food['id']);
               return InkWell(
@@ -36,7 +54,7 @@ class CombinationBreakfastList extends ConsumerWidget {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            FoodDetailScreens(food: food,type : 'combination'),
+            FoodDetailScreens(food: food,type : 'combination_breakfast'),
       ),
     );
                 },
@@ -147,7 +165,8 @@ class CombinationBreakfastList extends ConsumerWidget {
                 ),
               );
             },
-          ),
+          );
+          } ,
           loading: () => Center(child: CircularProgressIndicator()),
           error: (err, stack) => Center(child: Text("Error: $err")),
         ),

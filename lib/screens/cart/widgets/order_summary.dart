@@ -43,6 +43,10 @@ class _OrderSummaryState extends State<OrderSummary> {
       var foodItems = item['food_items'];
       var combinationBreakfast = item['combination_breakfast'];
       var recommendedBreakfast = item['recommended_breakfast'];
+            var allFood = item['all_foods'];
+
+            print('all food >> $allFood');
+
       
       // Get price from either food_items or combination_breakfast
       double itemPrice = 0.0;
@@ -52,7 +56,10 @@ class _OrderSummaryState extends State<OrderSummary> {
         itemPrice = double.parse(combinationBreakfast['price'].toString());
       }else if (recommendedBreakfast != null && recommendedBreakfast['price'] != null) {
 itemPrice = double.parse(recommendedBreakfast['price'].toString());
+      }else if (allFood != null && allFood['price'] != null) {
+itemPrice = double.parse(allFood['price'].toString());
       }
+
       
       int quantity = item['quantity'] ?? 1;
       tempTotal += (itemPrice * quantity);
@@ -63,7 +70,7 @@ itemPrice = double.parse(recommendedBreakfast['price'].toString());
     });
   }
 
-  void _onQuantityChanged() {
+  void onQuantityChanged() {
     // Recalculate price when quantity changes
     setState(() {
       _calculateTotalPrice();
@@ -110,7 +117,7 @@ itemPrice = double.parse(recommendedBreakfast['price'].toString());
                   cartItems: widget.cartItems,
                   userId: widget.userId,
                   isPayment: false,
-                  onQuantityChanged: _onQuantityChanged, // Pass the callback
+                  onQuantityChanged: onQuantityChanged, // Pass the callback
                 ),
                 CustomSizedBox.h10,
                 CustomDivider(

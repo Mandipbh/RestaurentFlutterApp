@@ -20,7 +20,7 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
   @override
   void initState() {
     super.initState();
-    print('food detail ${widget.food}');
+    print('food detail ${widget.type}');
 
     Future.microtask(() => fetchReviews());
   }
@@ -204,20 +204,25 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                               ),
                             ),
                             onPressed: () {
-                              if (widget.type == 'recommended') {
+                              if (widget.type == 'recommended_breakfast') {
                                 ref.read(cartProvider.notifier).addToCart(
                                     user!.id,
                                     recommendedBreakfastId: widget.food['id'],
                                     quantity: 1);
-                              } else if (widget.type == 'combination') {
+                              } else if (widget.type == 'combination_breakfast') {
                                 ref.read(cartProvider.notifier).addToCart(
                                     user!.id,
                                     combinationBreakfastId: widget.food['id'],
                                     quantity: 1);
+                              }else if(widget.type == 'food_items'){
+  ref.read(cartProvider.notifier).addToCart(
+      user!.id,
+      foodId: widget.food['id'],
+      quantity: 1);
                               } else {
                                 ref.read(cartProvider.notifier).addToCart(
                                     user!.id,
-                                    foodId: widget.food['id'],
+                                    allFoodId: widget.food['id'],
                                     quantity: 1);
                               }
 
@@ -286,6 +291,7 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                         ),
                       ),
                       SizedBox(height: 10),
+                      if(reviews.isNotEmpty)
                       Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.max,

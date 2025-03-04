@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:restaurent/screens/navigation/custom-bottom-nav-bar.dart';
 import 'package:restaurent/screens/cart/cart_screen.dart';
 import 'package:restaurent/screens/order_food/order_food.dart';
+import 'package:restaurent/screens/restaurent/restaurent_screen.dart';
 import 'package:restaurent/screens/settings/account_settings.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -16,6 +17,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _screens = [
     OrderFood(),
+    RestaurentScreen(),
     CartScreen(),
     ProfileScreen(),
   ];
