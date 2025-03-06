@@ -82,14 +82,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  onPressed: () {
-                    _pageController.jumpToPage(onboardingData.length - 1);
-                  },
-                  child: Text(
-                    "Skip",
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
-                  ),
+                  onPressed: _currentIndex < onboardingData.length - 1
+                      ? () {
+                          _pageController.jumpToPage(onboardingData.length - 1);
+                        }
+                      : null, // Disable the button on the last screen
+                  child: _currentIndex < onboardingData.length - 1
+                      ? Text(
+                          "Skip",
+                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                        )
+                      : SizedBox(), // Hide the button on the last screen
                 ),
+
                 // Row(
                 //   children: List.generate(
                 //     onboardingData.length,
@@ -141,7 +146,8 @@ class OnboardingPage extends StatelessWidget {
   final String title, subtitle, image1, image2;
 
   const OnboardingPage(
-      {super.key, required this.title,
+      {super.key,
+      required this.title,
       required this.subtitle,
       required this.image1,
       required this.image2});

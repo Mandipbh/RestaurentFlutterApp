@@ -29,4 +29,6 @@ class AppColors {
   static final Color? redish = Colors.red[900];
   static final Color? blueAccent = Colors.blueAccent;
   static final Color? orange_opc5 = Colors.orange.withOpacity(0.5);
+  static const Color table_color = Color(0xFF323237);
+  static const Color chair_color = Color(0xFF26262d);
 }

@@ -49,34 +49,34 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
     final cartItems = ref.watch(cartProvider);
 
     // Check if any results will be shown based on the current search
-    bool hasNoResults = searchQuery.isNotEmpty && 
-      foodItems.maybeWhen(
-        data: (foods) => foods == null || foods.where((food) => 
-          matchesSearchQuery(food['name'] ?? '', searchQuery)
-        ).isEmpty,
-        orElse: () => false,
-      ) &&
-      breakfastAsync.maybeWhen(
-        data: (foods) => foods == null || foods.where((food) => 
-          matchesSearchQuery(food['name'] ?? '', searchQuery)
-        ).isEmpty,
-        orElse: () => false,
-      ) &&
-      recommendedAsync.maybeWhen(
-        data: (foods) => foods == null || foods.where((food) => 
-          matchesSearchQuery(food['name'] ?? '', searchQuery)
-        ).isEmpty,
-        orElse: () => false,
-      );
-
-    Future<void> logout(BuildContext context) async {
-      final supabase = Supabase.instance.client;
-      await supabase.auth.signOut();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Splash()),
-      );
-    }
+    bool hasNoResults = searchQuery.isNotEmpty &&
+        foodItems.maybeWhen(
+          data: (foods) =>
+              foods == null ||
+              foods
+                  .where((food) =>
+                      matchesSearchQuery(food['name'] ?? '', searchQuery))
+                  .isEmpty,
+          orElse: () => false,
+        ) &&
+        breakfastAsync.maybeWhen(
+          data: (foods) =>
+              foods == null ||
+              foods
+                  .where((food) =>
+                      matchesSearchQuery(food['name'] ?? '', searchQuery))
+                  .isEmpty,
+          orElse: () => false,
+        ) &&
+        recommendedAsync.maybeWhen(
+          data: (foods) =>
+              foods == null ||
+              foods
+                  .where((food) =>
+                      matchesSearchQuery(food['name'] ?? '', searchQuery))
+                  .isEmpty,
+          orElse: () => false,
+        );
 
     return Scaffold(
       backgroundColor: AppColors.black,
@@ -90,10 +90,10 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
             children: [
               InkWell(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ReserveTable()),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => ReserveTable()),
+                  // );
                 },
                 child: CircleAvatar(
                   radius: 20,
@@ -155,9 +155,15 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
             ],
           ),
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: Icon(Icons.logout, color: AppColors.white),
             onPressed: () => logout(context),
           ),
+          // IconButton(
+          //   icon: Icon(Icons.logout),
+          //   onPressed: () {
+          //     _showLogoutDialog(context);
+          //   },
+          // ),
         ],
       ),
       body: SingleChildScrollView(
@@ -187,7 +193,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                   breakfastItems: breakfastAsync,
                   recommendedItems: recommendedAsync,
                 ),
-              
+
               // Show "No results found" message when search has no matches
               if (hasNoResults)
                 Container(
@@ -211,7 +217,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                     ],
                   ),
                 ),
-                
+
               if (!hasNoResults) ...[
                 CustomSizedBox.h10,
                 PromoBannerWidget(
@@ -231,7 +237,6 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                     selectedCategoryIdProvider: selectedCategoryIdProvider,
                   ),
                 CustomSizedBox.h10,
-                
                 Container(
                   padding: EdgeInsets.only(left: 20, right: 20, top: 10),
                   child: CustomText(
@@ -248,7 +253,8 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                     user: user,
                   ),
                 Container(
-                  padding: EdgeInsets.only(left: 20, bottom: 10, right: 20, top: 10),
+                  padding:
+                      EdgeInsets.only(left: 20, bottom: 10, right: 20, top: 10),
                   child: CustomText(
                     text: Strings.recBreakfast,
                     fontSize: 20,
@@ -258,9 +264,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 ),
                 if (user != null)
                   RecommendedFoodList(
-                    recommendedAsync: recommendedAsync, 
-                    user: user
-                  )
+                      recommendedAsync: recommendedAsync, user: user)
               ],
             ],
           ),
@@ -270,3 +274,45 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
   }
 }
 
+// void _showLogoutDialog(BuildContext context) {
+//   showDialog(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: Text("Logout"),
+//         content: Text("Are you sure you want to logout?"),
+//         actions: [
+//           TextButton(
+//             onPressed: () {
+//               Navigator.of(context).pop(); // Close dialog
+//             },
+//             child: Text("Cancel", style: TextStyle(color: Colors.black)),
+//           ),
+//           TextButton(
+//             onPressed: () {
+//               Navigator.of(context).pop(); // Close dialog
+//               Future.delayed(Duration(milliseconds: 300), () {
+//                 logout(context);
+//               });
+//             },
+//             child: Text("Logout", style: TextStyle(color: Colors.red)),
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+
+Future<void> logout(BuildContext context) async {
+  try {
+    final supabase = Supabase.instance.client;
+    await supabase.auth.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Splash()),
+    );
+  } catch (e) {
+    print("Logout error: $e"); // Debugging output
+  }
+}

@@ -66,89 +66,92 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 80),
-              CustomText(
-                text: Strings.welcomtext,
-                fontSize: 30,
-                color: Colors.white,
-              ),
-              CustomText(
-                text: Strings.welcomdesc,
-                fontSize: 14,
-                color: Colors.white,
-              ),
-              SizedBox(height: 100),
-              CustomTextField(
-                nameController: _emailController,
-                labelText: Strings.email,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Email is required";
-                  }
-                  final emailRegex = RegExp(
-                      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                  if (!emailRegex.hasMatch(value)) {
-                    return "Enter a valid email";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 25),
-              CustomTextField(
-                nameController: _passwordController,
-                labelText: Strings.password,
-                isPassword: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Password is required";
-                  }
-                  if (!RegExp(
-                          r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
-                      .hasMatch(value)) {
-                    return "Password must be at least 8 characters, include an uppercase letter, lowercase letter, number, and special character.";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 40),
-              SizedBox(height: 20),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : CustomButton(
-                      onPressed: _loginUser,
-                      text: Strings.login,
-                    ),
-              SizedBox(height: 40),
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomText(
-                      text: Strings.dontaccount,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 5),
-                    CustomText(
-                      text: Strings.signin,
-                      fontSize: 16,
-                      color: Color.fromARGB(255, 163, 16, 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AuthScreen()),
-                        );
-                      },
-                    ),
-                  ],
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 80),
+                CustomText(
+                  text: Strings.welcomtext,
+                  fontSize: 30,
+                  color: Colors.white,
                 ),
-              )
-            ],
+                CustomText(
+                  text: Strings.welcomdesc,
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 100),
+                CustomTextField(
+                  nameController: _emailController,
+                  labelText: Strings.email,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Email is required";
+                    }
+                    final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                    if (!emailRegex.hasMatch(value)) {
+                      return "Enter a valid email";
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 25),
+                CustomTextField(
+                  nameController: _passwordController,
+                  labelText: Strings.password,
+                  isPassword: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Password is required";
+                    }
+                    if (!RegExp(
+                            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+                        .hasMatch(value)) {
+                      return "Password must be at least 8 characters, include an uppercase letter, lowercase letter, number, and special character.";
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 40),
+                SizedBox(height: 20),
+                _isLoading
+                    ? CircularProgressIndicator()
+                    : CustomButton(
+                        onPressed: _loginUser,
+                        text: Strings.loginText,
+                      ),
+                SizedBox(height: 40),
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomText(
+                        text: Strings.dontaccount,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 5),
+                      CustomText(
+                        text: Strings.signin,
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 163, 16, 16),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AuthScreen()),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

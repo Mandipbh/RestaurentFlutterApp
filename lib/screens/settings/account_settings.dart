@@ -7,6 +7,7 @@ import 'package:restaurent/providers/order_provider.dart';
 import 'package:restaurent/providers/payment_provider.dart';
 import 'package:restaurent/providers/user_provider.dart';
 import 'package:restaurent/screens/navigation/main-navigation.dart';
+import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/screens/settings/edit_profile_screen.dart';
 import 'package:restaurent/screens/settings/order_history_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -22,6 +23,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool isAddressExpanded = false;
   bool isOrderHistoryExpanded = false;
   bool isPaymentsExpanded = false;
+  bool isResTableExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.white),
-          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainNavigation())),
+          onPressed: () => Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => MainNavigation())),
         ),
         actions: [
           IconButton(
@@ -70,9 +73,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundImage: user.imageUrl != null && user.imageUrl!.isNotEmpty
-                  ? NetworkImage(_getImageUrl(user.imageUrl!))
-                  : AssetImage('assets/select_category/dosa.jpg') as ImageProvider,
+              backgroundImage:
+                  user.imageUrl != null && user.imageUrl!.isNotEmpty
+                      ? NetworkImage(_getImageUrl(user.imageUrl!))
+                      : AssetImage('assets/select_category/dosa.jpg')
+                          as ImageProvider,
             ),
             SizedBox(height: 10),
             Text(
@@ -96,34 +101,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               setState(() {
                 isAddressExpanded = !isAddressExpanded;
               });
-            }, isAddressExpanded ? buildAddressDetails(user) : null, (){}),
+            }, isAddressExpanded ? buildAddressDetails(user) : null, () {}),
             SizedBox(height: 10),
-          buildExpandableCard(
-  "Order history",
-  isOrderHistoryExpanded,
-  () {
- 
-  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> OrderDetailsScreen(orderId: order.id, totalPrice : order.
+            buildExpandableCard(
+              "Order history",
+              isOrderHistoryExpanded,
+              () {
+                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> OrderDetailsScreen(orderId: order.id, totalPrice : order.
 // totalPrice, deliveryAddress :  order.deliveryAdress)));
-//  
-  },
-  isOrderHistoryExpanded ? buildOrderHistoryDetails(context) : null,
-  () {
-    // Handle icon tap separately if needed
-    setState(() {
-      isOrderHistoryExpanded = !isOrderHistoryExpanded;
-    });
-  },
-),
-
-          
-          
-          
-
-          
-          
-          
-          
+              },
+              isOrderHistoryExpanded ? buildOrderHistoryDetails(context) : null,
+              () {
+                // Handle icon tap separately if needed
+                setState(() {
+                  isOrderHistoryExpanded = !isOrderHistoryExpanded;
+                });
+              },
+            ),
             SizedBox(height: 10),
             buildExpandableCard(
               "Payments",
@@ -136,7 +130,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   }
                 });
               },
-              isPaymentsExpanded ? buildPaymentDetails() : null, (){},
+              isPaymentsExpanded ? buildPaymentDetails() : null,
+              () {},
+            ),
+            SizedBox(height: 10),
+            buildExpandableCard(
+              "Reservation Tables",
+              isResTableExpanded,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReserveTable()),
+                );
+              },
+              isResTableExpanded ? buildPaymentDetails() : null,
+              () {},
             ),
           ],
         ),
@@ -270,7 +278,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ],
                           ),
                           SizedBox(height: 6),
-
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -364,7 +371,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(width: 10,),
+                            SizedBox(
+                              width: 10,
+                            ),
                             Text(
                               "${payment.createdAt.toLocal()}",
                               style: TextStyle(color: Colors.white70),
@@ -427,4 +436,3 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 }
-

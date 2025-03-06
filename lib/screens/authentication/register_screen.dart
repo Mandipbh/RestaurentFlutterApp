@@ -37,6 +37,10 @@ class _AuthScreenState extends State<AuthScreen> {
         _emailController.clear();
         _passwordController.clear();
         _phoneController.clear();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
       }
     } catch (e) {
       print('Error: $e');

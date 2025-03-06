@@ -30,22 +30,39 @@ class TableSelectionScreen extends ConsumerStatefulWidget {
 }
 
 class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
+  // List<TableModel> tables = [
+  //   TableModel(id: "1", seatCount: 4, isMerged: false),
+  //   TableModel(id: "2", seatCount: 6, isMerged: false),
+  //   TableModel(id: "3", seatCount: 4, isMerged: false),
+  //   TableModel(id: "4", seatCount: 6, isMerged: false),
+  //   TableModel(id: "5", seatCount: 4, isMerged: false),
+  //   TableModel(id: "6", seatCount: 6, isMerged: false),
+  //   TableModel(id: "7", seatCount: 4, isMerged: false),
+  //   TableModel(id: "8", seatCount: 6, isMerged: false),
+  //   TableModel(id: "9", seatCount: 4, isMerged: false),
+  //   TableModel(id: "10", seatCount: 6, isMerged: false),
+  //   TableModel(id: "11", seatCount: 2, isMerged: false),
+  //   TableModel(id: "12", seatCount: 2, isMerged: false),
+  // ];
+
   List<TableModel> tables = [
-    TableModel(id: "1", seatCount: 4, isMerged: false),
-    TableModel(id: "2", seatCount: 6, isMerged: false),
-    TableModel(id: "3", seatCount: 4, isMerged: false),
-    TableModel(id: "4", seatCount: 6, isMerged: false),
-    TableModel(id: "5", seatCount: 4, isMerged: false),
-    TableModel(id: "6", seatCount: 6, isMerged: false),
-    TableModel(id: "7", seatCount: 4, isMerged: false),
-    TableModel(id: "8", seatCount: 6, isMerged: false),
-    TableModel(id: "9", seatCount: 4, isMerged: false),
-    TableModel(id: "10", seatCount: 6, isMerged: false),
-    TableModel(id: "11", seatCount: 2, isMerged: false),
-    TableModel(id: "12", seatCount: 2, isMerged: false),
+    TableModel(id: "1", seatCount: 4),
+    TableModel(id: "2", seatCount: 6),
+    TableModel(id: "3", seatCount: 4),
+    TableModel(id: "4", seatCount: 6),
+    TableModel(id: "5", seatCount: 4),
+    TableModel(id: "6", seatCount: 6),
+    TableModel(id: "7", seatCount: 4),
+    TableModel(id: "8", seatCount: 6),
+    TableModel(id: "9", seatCount: 4),
+    TableModel(id: "10", seatCount: 6),
+    TableModel(id: "11", seatCount: 2),
+    TableModel(id: "12", seatCount: 2),
   ];
 
   String? selectedTableId;
+
+  List<TableModel> filteredTables = [];
 
   Set<String> selectedTableIds = {};
 
@@ -54,50 +71,46 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
     super.initState();
 
     if (widget.reservations != null && widget.reservations!.isNotEmpty) {
-      // Extract all reserved table numbers and store them in a Set
       selectedTableIds = widget.reservations!
-          .expand((res) => (res['table_no'] as List)
-              .map((table) => table.toString())) // Convert table_no to String
+          .expand((res) =>
+              (res['table_no'] as List).map((table) => table.toString()))
           .toSet();
 
-      setState(() {}); // Update UI with selected tables
+      setState(() {});
 
-      print("Reserved Tables: $selectedTableIds"); // Debugging
+      print("Reserved Tables: $selectedTableIds");
     }
   }
 
-  void mergeTables(String targetId, String draggedId) {
-    setState(() {
-      var targetTable = tables.firstWhere((table) => table.id == targetId);
-      var draggedTable = tables.firstWhere((table) => table.id == draggedId);
+  // void mergeTables(String targetId, String draggedId) {
+  //   setState(() {
+  //     var targetTable = tables.firstWhere((table) => table.id == targetId);
+  //     var draggedTable = tables.firstWhere((table) => table.id == draggedId);
 
-      if (!targetTable.isMerged && !draggedTable.isMerged) {
-        int newSeatCount = targetTable.seatCount + draggedTable.seatCount;
-        if (newSeatCount <= 12) {
-          targetTable.seatCount = newSeatCount;
-          targetTable.isMerged = true;
-          draggedTable.isMerged = true; // Mark both tables as merged
-        } else {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(content: Text("Maximum seat count per table is 12!")),
-          // );
-        }
-      }
-    });
-  }
+  //     if (!targetTable.isMerged && !draggedTable.isMerged) {
+  //       int newSeatCount = targetTable.seatCount + draggedTable.seatCount;
+  //       if (newSeatCount <= 12) {
+  //         targetTable.seatCount = newSeatCount;
+  //         targetTable.isMerged = true;
+  //         draggedTable.isMerged = true;
+  //       } else {
+  //         // ScaffoldMessenger.of(context).showSnackBar(
+  //         //   SnackBar(content: Text("Maximum seat count per table is 12!")),
+  //         // );
+  //       }
+  //     }
+  //   });
+  // }
 
   void unmergeTable(String tableId) {
     setState(() {
       var table = tables.firstWhere((table) => table.id == tableId);
       if (table.isMerged) {
-        // Find the original table that was merged
         var originalTable = TableModel(
-            id: "temp",
-            seatCount: table.seatCount - 2,
-            isMerged: false); // Example logic
+            id: "temp", seatCount: table.seatCount - 2, isMerged: false);
         tables.add(originalTable);
         table.isMerged = false;
-        table.seatCount -= 2; // Adjust the seat count accordingly
+        table.seatCount -= 2;
       }
     });
   }
@@ -130,6 +143,19 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     print('reservationTableSelection ${widget.reservations}');
+    print('peopleCount ${widget.peopleCount}');
+    List<TableModel> filteredTables = tables.where((table) {
+      if (widget.peopleCount! <= 2) {
+        return table.seatCount == 2;
+      } else if (widget.peopleCount! <= 4) {
+        return table.seatCount == 2 || table.seatCount == 4;
+      } else {
+        return table.seatCount == 2 ||
+            table.seatCount == 4 ||
+            table.seatCount == 6;
+      }
+    }).toList();
+
     return Scaffold(
       backgroundColor: AppColors.black,
       appBar: AppBar(
@@ -145,53 +171,132 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
         children: [
           Expanded(
             child: Center(
-              child: GridView.builder(
-                padding: EdgeInsets.all(20),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: tables.length,
-                itemBuilder: (context, index) {
-                  return Draggable<String>(
-                    data: tables[index].id,
-                    feedback: Opacity(
-                      opacity: 0.7,
-                      child: buildTableBox(tables[index], true),
-                    ),
-                    childWhenDragging: Opacity(
-                        opacity: 0.3,
-                        child: buildTableBox(tables[index], false)),
-                    child: DragTarget<String>(
-                      onWillAcceptWithDetails: (draggedId) =>
-                          draggedId != tables[index].id,
-                      onAcceptWithDetails: (details) =>
-                          mergeTables(tables[index].id, details.data),
-                      builder: (context, candidateData, rejectedData) {
+              child: filteredTables.isNotEmpty
+                  ?
+                  /* Merging Tables */
+                  // GridView.builder(
+                  //     padding: EdgeInsets.all(20),
+                  //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  //       crossAxisCount: 3,
+                  //       crossAxisSpacing: 16,
+                  //       mainAxisSpacing: 16,
+                  //     ),
+                  //     itemCount: filteredTables.length,
+                  //     itemBuilder: (context, index) {
+                  //       return Draggable<String>(
+                  //         data: filteredTables[index].id,
+                  //         feedback: Opacity(
+                  //           opacity: 0.7,
+                  //           child: buildTableBox(filteredTables[index], true),
+                  //         ),
+                  //         childWhenDragging: Opacity(
+                  //             opacity: 0.3,
+                  //             child:
+                  //                 buildTableBox(filteredTables[index], false)),
+                  //         child: DragTarget<String>(
+                  //           onWillAcceptWithDetails: (draggedId) =>
+                  //               draggedId != filteredTables[index].id,
+                  //            onAcceptWithDetails: (details) => mergeTables(
+                  //              filteredTables[index].id, details.data),
+                  //           builder: (context, candidateData, rejectedData) {
+                  //             return GestureDetector(
+                  //               onTap: () {
+                  //                 if (!filteredTables[index].isBooked) {
+                  //                   bookTable(filteredTables[index].id);
+                  //                 }
+                  //                 selectTable(filteredTables[index].id);
+                  //               },
+                  //               onLongPress: () {
+                  //                 setState(() {
+                  //                   if (filteredTables[index].isMerged) {
+                  //                     unmergeTable(filteredTables[index].id);
+                  //                   }
+
+                  //                   if (widget.reservations != null &&
+                  //                       widget.reservations!.isNotEmpty) {
+                  //                     for (int i = 0;
+                  //                         i < widget.reservations!.length;
+                  //                         i++) {
+                  //                       if (widget.reservations![i]
+                  //                               ['table_no'] !=
+                  //                           null) {
+                  //                         widget.reservations![i]['table_no']
+                  //                             .clear(); // Clear table_no array
+                  //                       }
+                  //                     }
+                  //                   }
+                  //                 });
+
+                  //                 // Debugging: Print the reservations to verify changes
+                  //                 print(
+                  //                     "Updated Reservations: ${widget.reservations}");
+                  //               },
+                  //               child: buildTableBox(
+                  //                   filteredTables[index],
+                  //                   selectedTableId ==
+                  //                       filteredTables[index].id),
+                  //             );
+                  //           },
+                  //         ),
+                  //       );
+                  //     },
+                  //   )
+                  GridView.builder(
+                      padding: EdgeInsets.all(20),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: filteredTables.length,
+                      itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            if (!tables[index].isBooked) {
-                              bookTable(tables[index].id);
+                            if (!filteredTables[index].isBooked) {
+                              bookTable(filteredTables[index].id);
                             }
-                            selectTable(tables[index].id);
+                            selectTable(filteredTables[index].id);
                           },
                           onLongPress: () {
-                            if (tables[index].isMerged) {
-                              unmergeTable(tables[index].id);
-                            }
+                            setState(() {
+                              if (filteredTables[index].isMerged) {
+                                unmergeTable(filteredTables[index].id);
+                              }
+
+                              if (widget.reservations != null &&
+                                  widget.reservations!.isNotEmpty) {
+                                for (int i = 0;
+                                    i < widget.reservations!.length;
+                                    i++) {
+                                  if (widget.reservations![i]['table_no'] !=
+                                      null) {
+                                    widget.reservations![i]['table_no'].clear();
+                                  }
+                                }
+                              }
+                            });
+
+                            print(
+                                "Updated Reservations: ${widget.reservations}");
                           },
-                          child: buildTableBox(tables[index],
-                              selectedTableId == tables[index].id),
+                          child: buildTableBox(filteredTables[index],
+                              selectedTableId == filteredTables[index].id),
                         );
                       },
+                    )
+                  : Center(
+                      child: CustomText(
+                        text: "No tables available for this selection.",
+                        fontSize: 18,
+                        color: AppColors.white,
+                      ),
                     ),
-                  );
-                },
-              ),
             ),
           ),
-          if (selectedTableId != null || tables.any((table) => table.isMerged))
+          if (selectedTableId != null ||
+              tables.any((table) => table.isMerged) ||
+              widget.reservations?.first['table_no'] != null &&
+                  widget.reservations!.first['table_no'].isNotEmpty)
             Container(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 child: SizedBox(
@@ -228,11 +333,6 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                             selectedTableId: selectedTableIds,
                             isMerge: selectedTableIds.length > 1,
                           );
-
-                      // ignore: use_build_context_synchronously
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   SnackBar(content: Text('Table reserved successfully!')),
-                      // );
 
                       Navigator.push(
                         context,
@@ -280,11 +380,14 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
         //     : (selectedTableId == table.id
         //         ? AppColors.blueAccent
         //         : AppColors.black),
-        color: isReserved
+        color: (isReserved &&
+                widget.reservations!.any((res) =>
+                    res['table_no'] != null && res['table_no'].isNotEmpty))
             ? AppColors.red
             : isSelected
                 ? AppColors.blueAccent
                 : AppColors.black,
+
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(
@@ -296,7 +399,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
             decoration: BoxDecoration(
               color: table.isMerged
                   ? AppColors.orange_opc5
-                  : AppColors.searchbgcolor900,
+                  : AppColors.table_color,
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -308,9 +411,11 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
           //   color: AppColors.white,
           // )),
           Center(
-              child: Text(table.seatCount.toString(),
+              child: Text(
+                  // table.seatCount.toString(),
+                  table.id,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 23,
                     fontWeight: FontWeight.bold,
                     color: AppColors.white,
                   ))),
@@ -319,22 +424,22 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
               padding: const EdgeInsets.all(10),
               child: Stack(
                 children: List.generate(table.seatCount, (index) {
-                  double offsetX = (index % columns) * 15.0;
-                  double offsetY = (index ~/ columns) * 15.0;
+                  double offsetX = (index % columns) * 35.0;
+                  double offsetY = (index ~/ columns) * 63.0;
 
                   return Positioned(
                       left: offsetX,
                       top: offsetY,
                       child: Container(
-                        width: 30,
-                        height: 30,
+                        width: 20,
+                        height: 20,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
                               width: 2.0,
                               color: table.isMerged
                                   ? AppColors.black
-                                  : AppColors.searchbgcolor800),
+                                  : AppColors.chair_color),
                           color: table.isMerged
                               ? AppColors.orange
                               : AppColors.searchbgcolor900,
@@ -342,12 +447,14 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                         child:
                             // Center(
                             //     child: CustomText(
-                            //         text: (index + 1).toString(), //No Material widget found.
+                            //         text: (index + 1)
+                            //             .toString(), //No Material widget found.
                             //         fontSize: 12,
                             //         color: AppColors.white)),
                             Center(
                           child: Text(
-                            (index + 1).toString(),
+                            // (index + 1).toString(),
+                            '',
                             style:
                                 TextStyle(fontSize: 12, color: AppColors.white),
                           ),

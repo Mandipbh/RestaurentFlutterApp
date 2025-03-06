@@ -27,8 +27,13 @@ class PaymentScreen extends ConsumerStatefulWidget {
 
 class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   void _payWithCard() {
-    StripeService.instance.makePayment(widget.totalPrice, widget.userAddress,
-        widget.cartItems, context, widget.userId,);
+    StripeService.instance.makePayment(
+      widget.totalPrice,
+      widget.userAddress,
+      widget.cartItems,
+      context,
+      widget.userId,
+    );
   }
 
   void _cashOnDelivery() {
@@ -43,6 +48,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
+    print('widget.totalPrice ${widget.totalPrice}');
 
     return Scaffold(
       appBar: AppBar(
@@ -63,11 +69,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             children: [
               SizedBox(
                   child: CartItemList(
-                    cartItems: widget.cartItems,
-                    userId: user!.id,
-                    isPayment: true,
-                    onQuantityChanged: () {},
-                  )),
+                cartItems: widget.cartItems,
+                userId: user!.id,
+                isPayment: true,
+                onQuantityChanged: () {},
+              )),
               SizedBox(height: 20),
               Container(
                 width: double.infinity,
@@ -76,12 +82,17 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                   color: Colors.grey.shade900,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Total Price : ${widget.totalPrice}',
+                      'Total Price:',
                       style: TextStyle(color: Colors.white),
-                    )
+                    ),
+                    Text(
+                      widget.totalPrice.toStringAsFixed(2),
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -93,224 +104,63 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
   }
 
-  
   Widget _paymentMethods() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      SizedBox(height: 10),
-      CustomText(
-        text: "Delivery Address",
-        fontSize: 18,
-        color: AppColors.white,
-      ),
-      SizedBox(height: 10),
-      Container(
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade900,
-          borderRadius: BorderRadius.circular(12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 10),
+        CustomText(
+          text: "Delivery Address",
+          fontSize: 18,
+          color: AppColors.white,
         ),
-        child: Row(
-          children: [
-            Icon(Icons.location_on, color: AppColors.orange, size: 24),
-            SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Address: ${widget.userAddress}',
-                style: TextStyle(color: Colors.white, fontSize: 16),
+        SizedBox(height: 10),
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade900,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.location_on, color: AppColors.orange, size: 24),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Address: ${widget.userAddress}',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      SizedBox(height: 20),
-                  Text("Pay via Credit & Debit Cards",
-                style: TextStyle(color: Colors.white, fontSize: 18)),
-  ElevatedButton(
-    onPressed: () {
-      _payWithCard();
-    
-    // Navigator.push(
-  // context,
-  // MaterialPageRoute(
-    // builder: (context) => PaymentMethodsScreen(payWithCard: _payWithCard),
-  // ),
+        SizedBox(height: 20),
+        Text("Pay via Credit & Debit Cards",
+            style: TextStyle(color: Colors.white, fontSize: 18)),
+        ElevatedButton(
+          onPressed: () {
+            _payWithCard();
+
+            // Navigator.push(
+            // context,
+            // MaterialPageRoute(
+            // builder: (context) => PaymentMethodsScreen(payWithCard: _payWithCard),
+            // ),
 // );
-// 
-    // 
-    
-    
-    
-    
-    
-    
-    
-    
-            },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.grey.shade900,
-      minimumSize: Size(double.infinity, 50),
-    ),
-    child: Text(
-      "Pay Now",
-      style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 16),
-    ),
-  ),
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-    ],
-  );
+//
+            //
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey.shade900,
+            minimumSize: Size(double.infinity, 50),
+          ),
+          child: Text(
+            "Pay Now",
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+      ],
+    );
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-
-  
-
-  
-  
-  
-  
-  
-  
-
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
