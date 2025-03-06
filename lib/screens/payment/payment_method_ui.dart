@@ -42,24 +42,24 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text("UPI", style: TextStyle(color: Colors.white, fontSize: 18)),
- _buildPaymentOption("upi", "Google Pay / PhonePe",
-     Icons.account_balance_wallet, _payViaUPI),
- SizedBox(height: 20),
+            //  Text("UPI", style: TextStyle(color: Colors.white, fontSize: 18)),
+//  _buildPaymentOption("upi", "Google Pay / PhonePe",
+    //  Icons.account_balance_wallet, _payViaUPI),
+//  SizedBox(height: 20),
             Text("Credit & Debit Cards",
                 style: TextStyle(color: Colors.white, fontSize: 18)),
             _buildPaymentOption("card", "Credit/Debit Card",
                 Icons.credit_card, widget.payWithCard),
-
-            SizedBox(height: 20),
-           
-           
-           
-
-           
-            Text("More Payment Options",
-                style: TextStyle(color: Colors.white, fontSize: 18)),
-            _buildPaymentOption("cod", "Cash on Delivery", Icons.money, _cashOnDelivery),
+// 
+            // SizedBox(height: 20),
+          //  
+          //  
+          //  .
+// 
+          //  
+            // Text("More Payment Options",
+                // style: TextStyle(color: Colors.white, fontSize: 18)),
+            // _buildPaymentOption("cod", "Cash on Delivery", Icons.money, _cashOnDelivery),
           ],
         ),
       ),

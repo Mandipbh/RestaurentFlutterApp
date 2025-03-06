@@ -23,8 +23,8 @@ class CartItemList extends ConsumerWidget {
     return ListView.builder(
       itemCount: cartItems.length,
       padding: EdgeInsets.symmetric(vertical: 10),
-      shrinkWrap: true, // Ensures dynamic height
-      physics: NeverScrollableScrollPhysics(), // Prevents internal scrolling
+      shrinkWrap: true, 
+      physics: NeverScrollableScrollPhysics(), 
       itemBuilder: (context, index) {
         final item = cartItems[index];
     
@@ -99,6 +99,13 @@ class CartItemList extends ConsumerWidget {
                       fontWeight: FontWeight.w500,
                     ),
                     SizedBox(height: 5),
+                              if (isPayment)
+                                 CustomText(
+     text: 'quantity : ${item['quantity']}',
+     fontSize: 14,
+     color: Colors.white,
+     fontWeight: FontWeight.bold,
+   ),
                     if (!isPayment)
                       Container(
                         width: 140,

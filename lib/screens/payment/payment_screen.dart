@@ -4,7 +4,6 @@ import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/screens/cart/widgets/cart_item_list.dart';
 import 'package:restaurent/screens/order_food/order_success.dart';
-import 'package:restaurent/screens/payment/payment_method_ui.dart';
 import 'package:restaurent/services/stripe_service.dart';
 import 'package:restaurent/widgets/custom_text.dart';
 
@@ -126,17 +125,20 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         ),
       ),
       SizedBox(height: 20),
+                  Text("Pay via Credit & Debit Cards",
+                style: TextStyle(color: Colors.white, fontSize: 18)),
   ElevatedButton(
     onPressed: () {
+      _payWithCard();
     
-    Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => PaymentMethodsScreen(payWithCard: _payWithCard),
-  ),
-);
-
-    
+    // Navigator.push(
+  // context,
+  // MaterialPageRoute(
+    // builder: (context) => PaymentMethodsScreen(payWithCard: _payWithCard),
+  // ),
+// );
+// 
+    // 
     
     
     
@@ -151,7 +153,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       minimumSize: Size(double.infinity, 50),
     ),
     child: Text(
-      "Payment Now",
+      "Pay Now",
       style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,

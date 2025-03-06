@@ -109,6 +109,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     ElevatedButton(
                       onPressed: () {
 
+                        print('cartItems  new >> $cartItems');
+
                 
                         Navigator.push(
                           context,
@@ -141,11 +143,16 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     );
   }
 
+  
+
   double
   calculateTotalAmount(List<Map<String, dynamic>> cartItems) {
     double subtotal = 0.0;
     double gst = 0.0;
     double deliveryFee = 30.0; 
+
+
+
 
     for (var item in cartItems) {
       double price = 0.0;
@@ -155,7 +162,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         price = double.parse(item['combination_breakfast']['price'].toString());
       } else if (item['recommended_breakfast'] != null && item['recommended_breakfast']['price'] != null) {
  price = double.parse(item['recommended_breakfast']['price'].toString());
-      }else if (item['all_foods'] != null && item['all_food']['price'] != null) {
+      }else if (item['all_foods'] != null && item['all_foods']['price'] != null) {
 price = double.parse(item['all_foods']['price'].toString());
       }
       

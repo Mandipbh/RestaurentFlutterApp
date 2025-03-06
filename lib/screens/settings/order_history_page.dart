@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/providers/order_provider.dart';
+import 'package:restaurent/services/order_items.dart';
 
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
@@ -48,7 +49,7 @@ class OrderHistoryScreen extends StatelessWidget {
               itemCount: order.length,
               itemBuilder: (context, index) {
                 final orderItem = order[index];
-                return _buildOrderCard(orderItem);
+                return _buildOrderCard(orderItem , context);
               },
             );
           },
@@ -65,66 +66,71 @@ class OrderHistoryScreen extends StatelessWidget {
   
   
 
-Widget _buildOrderCard(order) {
+Widget _buildOrderCard(order, BuildContext context) {
   String formattedDate = _formatDate(order.createdAt);
 
-  return Container(
-    margin: EdgeInsets.only(bottom: 12),
-    padding: EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: Colors.grey[900],
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.3),
-          blurRadius: 8,
-          spreadRadius: 2,
-          offset: Offset(2, 2),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "#${order.id}",
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            Text(
-              "₹${order.totalPrice.toStringAsFixed(2)}",
-              style: TextStyle(color: Colors.greenAccent, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        SizedBox(height: 6),
-
-        // Order Status & Formatted Date
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildStatusChip(order.status),
-            Text(
-              formattedDate, // Updated to use formatted date
-              style: TextStyle(color: Colors.white38, fontSize: 12),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 10),
-        Divider(color: Colors.white10),
-
-        // Action Buttons
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            _buildActionButton(Icons.local_shipping, "Track", Colors.orange),
-          ],
-        ),
-      ],
+  return GestureDetector(
+    onTap: () {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> OrderDetailsScreen(orderId: order.id)));
+    },
+    child: Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 2,
+            offset: Offset(2, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "#${order.id}",
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              Text(
+                "₹${order.totalPrice.toStringAsFixed(2)}",
+                style: TextStyle(color: Colors.greenAccent, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          SizedBox(height: 6),
+    
+          // Order Status & Formatted Date
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildStatusChip(order.status),
+              Text(
+                formattedDate, // Updated to use formatted date
+                style: TextStyle(color: Colors.white38, fontSize: 12),
+              ),
+            ],
+          ),
+    
+          SizedBox(height: 10),
+          Divider(color: Colors.white10),
+    
+          // Action Buttons
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _buildActionButton(Icons.local_shipping, "Track", Colors.orange),
+            ],
+          ),
+        ],
+      ),
     ),
   );
 }

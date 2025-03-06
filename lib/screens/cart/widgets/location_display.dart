@@ -19,8 +19,7 @@ class LocationDisplay extends StatelessWidget {
       children: [
         Icon(Icons.location_on_outlined, color: Colors.white),
         CustomSizedBox.w10,
-        SizedBox(
-          width: 180,
+        Expanded(
           child: CustomText(
             text: location,
             fontSize: 14,

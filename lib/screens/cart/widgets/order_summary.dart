@@ -19,7 +19,8 @@ class OrderSummary extends StatefulWidget {
     required this.cartItems,
     required this.userId,
     required this.location,
-    required this.onEditLocation, required int totalPrice, 
+    required this.onEditLocation, 
+    required int totalPrice, 
   });
 
   @override
@@ -86,12 +87,37 @@ itemPrice = double.parse(allFood['price'].toString());
     }
   }
 
+   double
+ calculateTotalAmount(List<Map<String, dynamic>> cartItems) {
+   double subtotal = 0.0;
+   double gst = 0.0;
+   double deliveryFee = 30.0; 
+   for (var item in cartItems) {
+     double price = 0.0;
+     if (item['food_items'] != null && item['food_items']['price'] != null) {
+       price = double.parse(item['food_items']['price'].toString());
+     } else if (item['combination_breakfast'] != null && item['combination_breakfast']['price'] != null) {
+       price = double.parse(item['combination_breakfast']['price'].toString());
+     } else if (item['recommended_breakfast'] != null && item['recommended_breakfast']['price'] != null) {
+price = double.parse(item['recommended_breakfast']['price'].toString());
+     }else if (item['all_foods'] != null && item['all_foods']['price'] != null) {
+price = double.parse(item['all_foods']['price'].toString());
+     }
+     
+     int quantity = item['quantity'] as int? ?? 1;
+     subtotal += price * quantity;
+   }
+   gst = subtotal * 0.05;
+   double totalAmount = subtotal + gst + deliveryFee;
+   return totalAmount;
+ }
+
   @override
   Widget build(BuildContext context) {
     double gstRate = 0.05;
     double gst = totalPrice * gstRate;
     double deliveryFee = 50.0;
-    double grandTotal = totalPrice + gst + deliveryFee;
+    double grandTotal = calculateTotalAmount(widget.cartItems);
 
     return Padding(
       padding: EdgeInsets.all(10),
