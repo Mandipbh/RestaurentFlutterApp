@@ -96,16 +96,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               setState(() {
                 isAddressExpanded = !isAddressExpanded;
               });
-            }, isAddressExpanded ? buildAddressDetails(user) : null),
+            }, isAddressExpanded ? buildAddressDetails(user) : null, (){}),
             SizedBox(height: 10),
-            buildExpandableCard("Order history", isOrderHistoryExpanded, () {
-              setState(() {
-                isOrderHistoryExpanded = !isOrderHistoryExpanded;
-              });
-            },
-                isOrderHistoryExpanded
-                    ? buildOrderHistoryDetails(context)
-                    : null),
+          buildExpandableCard(
+  "Order history",
+  isOrderHistoryExpanded,
+  () {
+ 
+  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> OrderDetailsScreen(orderId: order.id, totalPrice : order.
+// totalPrice, deliveryAddress :  order.deliveryAdress)));
+//  
+  },
+  isOrderHistoryExpanded ? buildOrderHistoryDetails(context) : null,
+  () {
+    // Handle icon tap separately if needed
+    setState(() {
+      isOrderHistoryExpanded = !isOrderHistoryExpanded;
+    });
+  },
+),
+
+          
+          
+          
+
+          
+          
+          
+          
             SizedBox(height: 10),
             buildExpandableCard(
               "Payments",
@@ -118,7 +136,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   }
                 });
               },
-              isPaymentsExpanded ? buildPaymentDetails() : null,
+              isPaymentsExpanded ? buildPaymentDetails() : null, (){},
             ),
           ],
         ),
@@ -133,7 +151,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   // Rest of the methods remain the same as in the original ProfileScreen
   Widget buildExpandableCard(String title, bool isExpanded, VoidCallback onTap,
-      Widget? expandedContent) {
+      Widget? expandedContent, onIconTap) {
     return Column(
       children: [
         GestureDetector(
@@ -155,9 +173,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold),
                 ),
-                Icon(
-                  isExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: Colors.white,
+                GestureDetector(
+                  onTap: onIconTap,
+                  child: Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),

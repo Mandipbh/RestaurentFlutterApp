@@ -42,7 +42,8 @@ class FoodListScreen extends ConsumerWidget {
    ),
  );
                     },
-                    child: Card(
+                    child:
+                     Card(
                       color: Colors.grey.shade900, 
                       margin: EdgeInsets.all(10),
                       child: Column(

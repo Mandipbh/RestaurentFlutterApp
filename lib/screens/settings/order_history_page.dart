@@ -71,7 +71,7 @@ Widget _buildOrderCard(order, BuildContext context) {
 
   return GestureDetector(
     onTap: () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> OrderDetailsScreen(orderId: order.id)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> OrderDetailsScreen(orderId: order.id, totalPrice : order.totalPrice, deliveryAddress :  order.deliveryAdress)));
     },
     child: Container(
       margin: EdgeInsets.only(bottom: 12),
