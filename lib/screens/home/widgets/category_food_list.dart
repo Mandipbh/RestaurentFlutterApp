@@ -274,7 +274,7 @@ class CategoryFoodList extends ConsumerWidget {
               ),
             );
           },
-          loading: () => Center(child: CircularProgressIndicator()),
+          loading: () => Offstage(),
           error: (err, stack) => Center(child: Text("Error: $err")),
         ),
       ],

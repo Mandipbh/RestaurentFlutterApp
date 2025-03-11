@@ -47,17 +47,19 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
 
   List<TableModel> tables = [
     TableModel(id: "1", seatCount: 4),
-    TableModel(id: "2", seatCount: 6),
+    TableModel(id: "2", seatCount: 4),
     TableModel(id: "3", seatCount: 4),
-    TableModel(id: "4", seatCount: 6),
+    TableModel(id: "4", seatCount: 4),
     TableModel(id: "5", seatCount: 4),
-    TableModel(id: "6", seatCount: 6),
+    TableModel(id: "6", seatCount: 4),
     TableModel(id: "7", seatCount: 4),
-    TableModel(id: "8", seatCount: 6),
+    TableModel(id: "8", seatCount: 4),
     TableModel(id: "9", seatCount: 4),
-    TableModel(id: "10", seatCount: 6),
-    TableModel(id: "11", seatCount: 2),
-    TableModel(id: "12", seatCount: 2),
+    TableModel(id: "10", seatCount: 4),
+    TableModel(id: "11", seatCount: 4),
+    TableModel(id: "12", seatCount: 6),
+    TableModel(id: "13", seatCount: 6),
+    TableModel(id: "14", seatCount: 6),
   ];
 
   String? selectedTableId;
@@ -142,8 +144,8 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('reservationTableSelection ${widget.reservations}');
-    print('peopleCount ${widget.peopleCount}');
+    // print('reservationTableSelection ${widget.reservations}');
+    // print('peopleCount ${widget.peopleCount}');
     List<TableModel> filteredTables = tables.where((table) {
       if (widget.peopleCount! <= 2) {
         return table.seatCount == 2;
@@ -284,6 +286,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                         );
                       },
                     )
+                  
                   : Center(
                       child: CustomText(
                         text: "No tables available for this selection.",
@@ -424,7 +427,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
               padding: const EdgeInsets.all(10),
               child: Stack(
                 children: List.generate(table.seatCount, (index) {
-                  double offsetX = (index % columns) * 35.0;
+                  double offsetX = (index % columns) * 32.0;
                   double offsetY = (index ~/ columns) * 63.0;
 
                   return Positioned(

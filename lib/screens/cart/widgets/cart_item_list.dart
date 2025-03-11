@@ -21,41 +21,42 @@ class CartItemList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView.builder(
+      key: PageStorageKey('cartList'),
       itemCount: cartItems.length,
       padding: EdgeInsets.symmetric(vertical: 10),
-      shrinkWrap: true, 
-      physics: NeverScrollableScrollPhysics(), 
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         final item = cartItems[index];
-    
+
         final foodItem = item['food_items'];
         final combinationBreakfast = item['combination_breakfast'];
         final recommendedBreakfast = item['recommended_breakfast'];
-                final allFood = item['all_foods'];
+        final allFood = item['all_foods'];
 
-    
         final imageUrl = foodItem?['image_url'] ??
             combinationBreakfast?['image_url'] ??
             recommendedBreakfast?['image_url'] ??
-            allFood?['image_url']??
+            allFood?['image_url'] ??
             'https://via.placeholder.com/80';
-    
+
         final name = foodItem?['name'] ??
             combinationBreakfast?['name'] ??
             recommendedBreakfast?['name'] ??
-            allFood?['name']??
+            allFood?['name'] ??
             'Unknown Item';
-    
+
         final price = foodItem?['price'] != null
             ? double.parse(foodItem!['price'].toString())
             : combinationBreakfast?['price'] != null
                 ? double.parse(combinationBreakfast!['price'].toString())
                 : allFood?['price'] != null
-    ? double.parse(allFood!['price'].toString())
-                : recommendedBreakfast?['price'] != null
-                    ? double.parse(recommendedBreakfast!['price'].toString())
-                    : 0.0;
-    
+                    ? double.parse(allFood!['price'].toString())
+                    : recommendedBreakfast?['price'] != null
+                        ? double.parse(
+                            recommendedBreakfast!['price'].toString())
+                        : 0.0;
+
         return Container(
           margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           decoration: BoxDecoration(
@@ -99,13 +100,13 @@ class CartItemList extends ConsumerWidget {
                       fontWeight: FontWeight.w500,
                     ),
                     SizedBox(height: 5),
-                              if (isPayment)
-                                 CustomText(
-     text: 'quantity : ${item['quantity']}',
-     fontSize: 14,
-     color: Colors.white,
-     fontWeight: FontWeight.bold,
-   ),
+                    if (isPayment)
+                      CustomText(
+                        text: 'quantity : ${item['quantity']}',
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     if (!isPayment)
                       Container(
                         width: 140,

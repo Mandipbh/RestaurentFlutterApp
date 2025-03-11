@@ -36,7 +36,7 @@ class _TableReservationSelectionState
 
   List<int> dates = [];
   List<String> times = ['6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'];
-  List<int> peopleCount = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  List<int> peopleCount = [1, 2, 3, 4, 5, 6];
 
   bool get isNextEnabled =>
       selectedDate != null && selectedTime != null && selectedPeople != null;

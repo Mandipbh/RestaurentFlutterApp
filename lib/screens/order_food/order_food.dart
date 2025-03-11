@@ -34,12 +34,18 @@ class OrderFood extends ConsumerStatefulWidget {
 }
 
 class _OrderFoodState extends ConsumerState<OrderFood> {
+  String _getImageUrl(String path) {
+    final supabase = Supabase.instance.client;
+    return supabase.storage.from('avatars').getPublicUrl(path);
+  }
+
   @override
   Widget build(BuildContext context) {
     final categoryAsync = ref.watch(catListProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final foodItems = ref.watch(foodListProvider(selectedCategoryId));
     final user = ref.watch(authProvider);
+    final userProfile = ref.watch(userProvider);
     final userDetail = ref.watch(userProvider);
     final searchQuery = ref.watch(searchQueryProvider);
 
@@ -95,9 +101,17 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                   //   MaterialPageRoute(builder: (context) => ReserveTable()),
                   // );
                 },
-                child: CircleAvatar(
+                child:
+                    // CircleAvatar(
+                    //   radius: 20,
+                    //   backgroundImage: AssetImage(Images.circleavatar_bg),
+                    CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage(Images.circleavatar_bg),
+                  backgroundImage: userProfile?.imageUrl != null &&
+                          userProfile!.imageUrl!.isNotEmpty
+                      ? NetworkImage(_getImageUrl(userProfile.imageUrl!))
+                          as ImageProvider
+                      : AssetImage(Images.circleavatar_bg),
                 ),
               ),
               SizedBox(width: 8),

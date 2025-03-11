@@ -70,7 +70,7 @@ class RestaurentScreen extends ConsumerWidget {
      Expanded(
   child: restaurantList.when(
     data: (restaurants) => restaurants.isEmpty
-        ? Center(child: Text("No restaurants available"))
+        ? Center(child: Text("No restaurants available", style: TextStyle(color: AppColors.white),))
         : ListView.builder(
             padding: EdgeInsets.all(10),
             itemCount: restaurants.length,
