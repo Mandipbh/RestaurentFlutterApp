@@ -10,7 +10,6 @@ import 'package:restaurent/screens/reserve_table/select_restaurant.dart';
 import 'package:restaurent/screens/reserve_table/widgets/reserved_cart.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddReserveTable extends ConsumerStatefulWidget {
   const AddReserveTable({super.key});
@@ -129,8 +128,20 @@ class _AddReserveTableState extends ConsumerState<AddReserveTable> {
                                   date: DateTime.parse(reservation['date']),
                                   time: reservation['time'],
                                   seat: reservation['no_of_people'],
-                                  table:
-                                      List<int>.from(reservation['table_no']),
+                                  table: List<dynamic>.from(
+                                      reservation['table_no']),
+                                  deleteOnTap: () async {
+                                    final shouldDelete =
+                                        await _showDeleteConfirmationDialog(
+                                            context);
+                                    if (shouldDelete) {
+                                      await ref
+                                          .read(reservationsProvider.notifier)
+                                          .deleteReservation(
+                                              reservation['restaurant_id']);
+                                      setState(() {});
+                                    }
+                                  },
                                   editOnTap: () async {
                                     Navigator.pushReplacement(
                                       context,
@@ -140,8 +151,11 @@ class _AddReserveTableState extends ConsumerState<AddReserveTable> {
                                                 reservations: [reservation],
                                               )),
                                     );
-                                    await updateReservation(
-                                        reservation['restaurant_id']);
+                                    await ref
+                                        .read(reservationsProvider.notifier)
+                                        .deleteReservation(
+                                            reservation['restaurant_id']);
+                                    ;
                                   },
                                 );
                               }),
@@ -169,18 +183,31 @@ class _AddReserveTableState extends ConsumerState<AddReserveTable> {
     );
   }
 
-  Future<void> updateReservation(String restaurantId) async {
-    final supabase = Supabase.instance.client;
-
-    final response = await supabase
-        .from('reservation_table')
-        .delete()
-        .match({'restaurant_id': restaurantId});
-
-    if (response.error != null) {
-      print("Error deleting reservation: ${response.error!.message}");
-    } else {
-      print("Reservation deleted successfully");
-    }
+  Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Confirm Deletion"),
+              content:
+                  Text("Are you sure you want to delete this reservation?"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Cancelled
+                  },
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Confirmed
+                  },
+                  child: Text("Delete", style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Default to false if dialog is dismissed
   }
 }

@@ -46,10 +46,10 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
   // ];
 
   List<TableModel> tables = [
-    TableModel(id: "1", seatCount: 4),
-    TableModel(id: "2", seatCount: 4),
-    TableModel(id: "3", seatCount: 4),
-    TableModel(id: "4", seatCount: 4),
+    TableModel(id: "1", seatCount: 2),
+    TableModel(id: "2", seatCount: 2),
+    TableModel(id: "3", seatCount: 2),
+    TableModel(id: "4", seatCount: 2),
     TableModel(id: "5", seatCount: 4),
     TableModel(id: "6", seatCount: 4),
     TableModel(id: "7", seatCount: 4),
@@ -147,7 +147,7 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
     // print('reservationTableSelection ${widget.reservations}');
     // print('peopleCount ${widget.peopleCount}');
     List<TableModel> filteredTables = tables.where((table) {
-      if (widget.peopleCount! <= 2) {
+      if (widget.peopleCount == 1 || widget.peopleCount == 2) {
         return table.seatCount == 2;
       } else if (widget.peopleCount! <= 4) {
         return table.seatCount == 2 || table.seatCount == 4;
@@ -286,7 +286,6 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
                         );
                       },
                     )
-                  
                   : Center(
                       child: CustomText(
                         text: "No tables available for this selection.",
@@ -415,58 +414,57 @@ class _TableSelectionScreenState extends ConsumerState<TableSelectionScreen> {
           // )),
           Center(
               child: Text(
-                  // table.seatCount.toString(),
-                  table.id,
+                  table.seatCount.toString(),
+                  // table.id,
                   style: TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.bold,
                     color: AppColors.white,
                   ))),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Stack(
-                children: List.generate(table.seatCount, (index) {
-                  double offsetX = (index % columns) * 32.0;
-                  double offsetY = (index ~/ columns) * 63.0;
-
-                  return Positioned(
-                      left: offsetX,
-                      top: offsetY,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              width: 2.0,
-                              color: table.isMerged
-                                  ? AppColors.black
-                                  : AppColors.chair_color),
-                          color: table.isMerged
-                              ? AppColors.orange
-                              : AppColors.searchbgcolor900,
-                        ),
-                        child:
-                            // Center(
-                            //     child: CustomText(
-                            //         text: (index + 1)
-                            //             .toString(), //No Material widget found.
-                            //         fontSize: 12,
-                            //         color: AppColors.white)),
-                            Center(
-                          child: Text(
-                            // (index + 1).toString(),
-                            '',
-                            style:
-                                TextStyle(fontSize: 12, color: AppColors.white),
-                          ),
-                        ),
-                      ));
-                }),
-              ),
-            ),
-          ),
+          // Positioned.fill(
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(10),
+          //     child: Stack(
+          //       children: List.generate(table.seatCount, (index) {
+          //         double offsetX = (index % columns) * 28.0;
+          //         double offsetY = (index ~/ columns) * 55.0;
+          //         return Positioned(
+          //             left: offsetX,
+          //             top: offsetY,
+          //             child: Container(
+          //               width: 20,
+          //               height: 20,
+          //               decoration: BoxDecoration(
+          //                 shape: BoxShape.circle,
+          //                 border: Border.all(
+          //                     width: 2.0,
+          //                     color: table.isMerged
+          //                         ? AppColors.black
+          //                         : AppColors.chair_color),
+          //                 color: table.isMerged
+          //                     ? AppColors.orange
+          //                     : AppColors.searchbgcolor900,
+          //               ),
+          //               child:
+          //                   // Center(
+          //                   //     child: CustomText(
+          //                   //         text: (index + 1)
+          //                   //             .toString(), //No Material widget found.
+          //                   //         fontSize: 12,
+          //                   //         color: AppColors.white)),
+          //                   Center(
+          //                 child: Text(
+          //                   // (index + 1).toString(),
+          //                   '',
+          //                   style:
+          //                       TextStyle(fontSize: 12, color: AppColors.white),
+          //                 ),
+          //               ),
+          //             ));
+          //       }),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

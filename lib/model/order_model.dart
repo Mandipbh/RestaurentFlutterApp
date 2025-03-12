@@ -12,16 +12,7 @@ class OrderModel {
     required this.createdAt,
     required this.deliveryAdress,
   });
-
- 
- 
- 
- 
- 
- 
- 
- 
-
+  
   factory OrderModel.fromJson(Map<String, dynamic> json) {
    return OrderModel(
    id: json['id'] ?? '', // ID is a String, no conversion needed

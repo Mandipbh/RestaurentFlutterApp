@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/screens/authentication/register_screen.dart';
+import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/widgets/custom_button.dart';
 import 'package:restaurent/widgets/custom_text.dart';
 import 'package:restaurent/widgets/custom_textfield.dart';
@@ -11,6 +12,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../home/home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
+  final String? selectedCategory;
+
+  const LoginScreen({Key? key, this.selectedCategory}) : super(key: key);
+
   @override
   ConsumerState createState() => _LoginScreenState();
 }
@@ -40,10 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           if (loggedInUser != null) {
             ref.read(authProvider.notifier).state = loggedInUser;
           }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-          );
+          navigateToNextScreen();
         }
       } catch (e) {
         setState(() {});
@@ -57,6 +59,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  void navigateToNextScreen() {
+    if (widget.selectedCategory == "ORDER FOOD") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } else if (widget.selectedCategory == "RESERVE TABLE") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ReserveTable()),
+      );
     }
   }
 
@@ -83,7 +99,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   fontSize: 14,
                   color: Colors.white,
                 ),
-                SizedBox(height: 100),
+                SizedBox(height: 20),
+                CustomText(
+                  text: "Selected Category: ${widget.selectedCategory}",
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 80),
                 CustomTextField(
                   nameController: _emailController,
                   labelText: Strings.email,
@@ -117,7 +139,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   },
                 ),
                 SizedBox(height: 40),
-                SizedBox(height: 20),
                 _isLoading
                     ? CircularProgressIndicator()
                     : CustomButton(

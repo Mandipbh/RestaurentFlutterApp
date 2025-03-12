@@ -15,24 +15,19 @@ class LocationDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('location->>$location');
     return Row(
       children: [
         Icon(Icons.location_on_outlined, color: Colors.white),
         CustomSizedBox.w10,
         Expanded(
           child: CustomText(
-            text: location,
+            text: location.trim(),
             fontSize: 14,
             color: AppColors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        // CustomSizedBox.w30,
-        // IconButton(
-          // icon: Icon(Icons.edit, color: AppColors.white70),
-          // iconSize: 20,
-          // onPressed: onEdit ?? () {},
-        // ),
       ],
     );
   }

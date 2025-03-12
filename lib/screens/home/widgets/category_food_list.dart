@@ -108,9 +108,12 @@ class CategoryFoodList extends ConsumerWidget {
         foodItems.when(
           data: (foods) {
             if (foods.isEmpty) {
-              return Center(
-                  child: Text('No food items available',
-                      style: TextStyle(color: Colors.white)));
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 60.0),
+                child: Center(
+                    child: Text('No food items available',
+                        style: TextStyle(color: Colors.white))),
+              );
             }
 
             // Filter foods based on search query

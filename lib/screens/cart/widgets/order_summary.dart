@@ -19,8 +19,8 @@ class OrderSummary extends StatefulWidget {
     required this.cartItems,
     required this.userId,
     required this.location,
-    required this.onEditLocation, 
-    required int totalPrice, 
+    required this.onEditLocation,
+    required int totalPrice,
   });
 
   @override
@@ -44,24 +44,24 @@ class _OrderSummaryState extends State<OrderSummary> {
       var foodItems = item['food_items'];
       var combinationBreakfast = item['combination_breakfast'];
       var recommendedBreakfast = item['recommended_breakfast'];
-            var allFood = item['all_foods'];
+      var allFood = item['all_foods'];
 
-            print('all food >> $allFood');
+      print('all food >> $allFood');
 
-      
       // Get price from either food_items or combination_breakfast
       double itemPrice = 0.0;
       if (foodItems != null && foodItems['price'] != null) {
         itemPrice = double.parse(foodItems['price'].toString());
-      } else if (combinationBreakfast != null && combinationBreakfast['price'] != null) {
+      } else if (combinationBreakfast != null &&
+          combinationBreakfast['price'] != null) {
         itemPrice = double.parse(combinationBreakfast['price'].toString());
-      }else if (recommendedBreakfast != null && recommendedBreakfast['price'] != null) {
-itemPrice = double.parse(recommendedBreakfast['price'].toString());
-      }else if (allFood != null && allFood['price'] != null) {
-itemPrice = double.parse(allFood['price'].toString());
+      } else if (recommendedBreakfast != null &&
+          recommendedBreakfast['price'] != null) {
+        itemPrice = double.parse(recommendedBreakfast['price'].toString());
+      } else if (allFood != null && allFood['price'] != null) {
+        itemPrice = double.parse(allFood['price'].toString());
       }
 
-      
       int quantity = item['quantity'] ?? 1;
       tempTotal += (itemPrice * quantity);
     }
@@ -87,30 +87,32 @@ itemPrice = double.parse(allFood['price'].toString());
     }
   }
 
-   double
- calculateTotalAmount(List<Map<String, dynamic>> cartItems) {
-   double subtotal = 0.0;
-   double gst = 0.0;
-   double deliveryFee = 30.0; 
-   for (var item in cartItems) {
-     double price = 0.0;
-     if (item['food_items'] != null && item['food_items']['price'] != null) {
-       price = double.parse(item['food_items']['price'].toString());
-     } else if (item['combination_breakfast'] != null && item['combination_breakfast']['price'] != null) {
-       price = double.parse(item['combination_breakfast']['price'].toString());
-     } else if (item['recommended_breakfast'] != null && item['recommended_breakfast']['price'] != null) {
-price = double.parse(item['recommended_breakfast']['price'].toString());
-     }else if (item['all_foods'] != null && item['all_foods']['price'] != null) {
-price = double.parse(item['all_foods']['price'].toString());
-     }
-     
-     int quantity = item['quantity'] as int? ?? 1;
-     subtotal += price * quantity;
-   }
-   gst = subtotal * 0.05;
-   double totalAmount = subtotal + gst + deliveryFee;
-   return totalAmount;
- }
+  double calculateTotalAmount(List<Map<String, dynamic>> cartItems) {
+    double subtotal = 0.0;
+    double gst = 0.0;
+    double deliveryFee = 30.0;
+    for (var item in cartItems) {
+      double price = 0.0;
+      if (item['food_items'] != null && item['food_items']['price'] != null) {
+        price = double.parse(item['food_items']['price'].toString());
+      } else if (item['combination_breakfast'] != null &&
+          item['combination_breakfast']['price'] != null) {
+        price = double.parse(item['combination_breakfast']['price'].toString());
+      } else if (item['recommended_breakfast'] != null &&
+          item['recommended_breakfast']['price'] != null) {
+        price = double.parse(item['recommended_breakfast']['price'].toString());
+      } else if (item['all_foods'] != null &&
+          item['all_foods']['price'] != null) {
+        price = double.parse(item['all_foods']['price'].toString());
+      }
+
+      int quantity = item['quantity'] as int? ?? 1;
+      subtotal += price * quantity;
+    }
+    gst = subtotal * 0.05;
+    double totalAmount = subtotal + gst + deliveryFee;
+    return totalAmount;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,21 +154,18 @@ price = double.parse(item['all_foods']['price'].toString());
                   indent: ScreenSize.width(context) * 0.00,
                   endIndent: ScreenSize.width(context) * 0.00,
                 ),
-                
                 SizedBox(height: 10),
                 LocationDisplay(
                   location: widget.location,
                   onEdit: widget.onEditLocation,
                 ),
                 SizedBox(height: 10),
-              
                 CustomDivider(
                   color: Colors.grey[800]!,
                   thickness: 1.5,
                   indent: ScreenSize.width(context) * 0.00,
                   endIndent: ScreenSize.width(context) * 0.00,
                 ),
-              
                 SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.all(8.0),

@@ -14,11 +14,12 @@ void main() async {
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhbmt5amtiZGZicXlpanBmdnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDYxNjAsImV4cCI6MjA1NTAyMjE2MH0.pJQPliX_VITJFlDJBBoUFw18oinQbfwsug174icplaA', // Replace with your Supabase anon key
   );
-    await _setup();
+  await _setup();
 
   runApp(ProviderScope(child: MyApp()));
 }
-Future<void> _setup() async{
+
+Future<void> _setup() async {
   WidgetsFlutterBinding.ensureInitialized();
   Stripe.publishableKey = stripePublishKey;
 }
@@ -26,25 +27,25 @@ Future<void> _setup() async{
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-  debugShowCheckedModeBanner: false,
-  title: 'Supabase Auth',
-  theme: ThemeData(
-    primarySwatch: Colors.blue,
-    fontFamily: 'GillSans', 
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
+      debugShowCheckedModeBanner: false,
+      title: 'Supabase Auth',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        fontFamily: 'GillSans',
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.black,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey,
+        ),
       ),
-    
-  ),
-  home: AuthWrapper(),
-);
+      home: AuthWrapper(),
+    );
   }
 }
+
 class AuthWrapper extends ConsumerWidget {
   const AuthWrapper({super.key});
 
@@ -55,9 +56,9 @@ class AuthWrapper extends ConsumerWidget {
     return authState.when(
       data: (state) {
         if (state.session != null) {
-          return  MainNavigation();
+          return MainNavigation();
         }
-        return  Splash();
+        return Splash();
       },
       loading: () => const Scaffold(
         body: Center(

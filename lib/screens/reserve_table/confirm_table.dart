@@ -167,6 +167,7 @@ class ConfirmedTable extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     print('DateConfirmedTable->>> $date');
+
     final user = ref.read(authProvider);
     final userName = user?.userMetadata?['full_name'] ?? 'Guest';
 
@@ -208,7 +209,7 @@ class ConfirmedTable extends ConsumerWidget {
                 const Divider(color: Color(0xFF414146)),
                 _buildDetailRow("No of seats", numberOfPeople.toString()),
                 const Divider(color: Color(0xFF414146)),
-                _buildDetailRow("Table No's", tableNos.toString()),
+                _buildDetailRow("Table No's", tableNos?.join(', ')),
               ],
             ),
           ),

@@ -5,9 +5,7 @@ import 'package:restaurent/screens/authentication/register_screen.dart';
 class CategoryList extends StatelessWidget {
   final List<Map<String, String>> categories = [
     {"image": Images.sc_order_food, "title": "ORDER FOOD"},
-    {"image": Images.sc_take_away, "title": "TAKE AWAY"},
     {"image": Images.sc_reserve_table, "title": "RESERVE TABLE"},
-    {"image": Images.sc_catering, "title": "CATERING"},
   ];
 
   @override
@@ -29,13 +27,19 @@ class CategoryList extends StatelessWidget {
             ),
             itemCount: categories.length,
             itemBuilder: (context, index) {
+              print(
+                  'categories[index]["title"]! ${categories[index]["title"]!}');
               return _buildCategoryItem(
                 categories[index]["image"]!,
                 categories[index]["title"]!,
                 () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => AuthScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => AuthScreen(
+                        selectedCategory: categories[index]["title"]!,
+                      ),
+                    ),
                   );
                 },
               );

@@ -12,8 +12,9 @@ class CartItemCard extends StatelessWidget {
   final DateTime date;
   final String time;
   final int seat;
-  final List<int>? table;
+  final List<dynamic>? table;
   final void Function()? editOnTap;
+  final void Function()? deleteOnTap;
 
   const CartItemCard({
     super.key,
@@ -24,12 +25,13 @@ class CartItemCard extends StatelessWidget {
     required this.seat,
     this.table,
     this.editOnTap,
+    this.deleteOnTap,
   });
 
   @override
   Widget build(BuildContext context) {
     // print('table->>> $table');
-    String formattedDate = DateFormat('MMMM dd, yyyy').format(date);
+    String formattedDate = DateFormat('MMMM dd').format(date);
     return Card(
       color: AppColors.card_color,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -40,6 +42,25 @@ class CartItemCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     CustomText(
+            //       text: restaurantName,
+            //       color: AppColors.white,
+            //       fontSize: 18,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //     InkWell(
+            //       onTap: editOnTap,
+            //       child: Icon(
+            //         Icons.edit,
+            //         color: AppColors.white60,
+            //         size: 20,
+            //       ),
+            //     )
+            //   ],
+            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -49,14 +70,27 @@ class CartItemCard extends StatelessWidget {
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
-                InkWell(
-                  onTap: editOnTap,
-                  child: Icon(
-                    Icons.edit,
-                    color: AppColors.white60,
-                    size: 20,
-                  ),
-                )
+                PopupMenuButton<String>(
+                  icon:
+                      Icon(Icons.more_vert, color: AppColors.white60, size: 24),
+                  onSelected: (value) {
+                    if (value == 'update') {
+                      editOnTap?.call();
+                    } else if (value == 'delete') {
+                      deleteOnTap?.call();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'update',
+                      child: Text('Update'),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete'),
+                    ),
+                  ],
+                ),
               ],
             ),
             Padding(
@@ -132,7 +166,7 @@ class CartItemCard extends StatelessWidget {
                               fontSize: 14,
                             ),
                             CustomText(
-                              text: table?.toString() ?? 'N/A',
+                              text: table!.join(', '),
                               color: AppColors.grey,
                               fontSize: 14,
                             ),

@@ -103,39 +103,21 @@ class ReservationsNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     }
   }
 
-  // /// Update an existing reservation
-  // Future<void> updateReservation({
-  //   required int reservationId,
-  //   required int peopleCount,
-  //   required List<int> selectedTableId,
-  //   required bool isMerge,
-  // }) async {
-  //   try {
-  //     await Supabase.instance.client.from('reservation_table').update({
-  //       'no_of_people': peopleCount,
-  //       'table_no': selectedTableId,
-  //       'ismerge': isMerge,
-  //     }).eq('id', reservationId);
+  Future<void> deleteReservation(String restaurantId) async {
+    try {
+      final supabase = Supabase.instance.client;
 
-  //     // Fetch updated reservations
-  //     fetchReservations();
-  //   } catch (error) {
-  //     print("Update reservation error: $error");
-  //   }
-  // }
+      await supabase
+          .from('reservation_table')
+          .delete()
+          .match({'restaurant_id': restaurantId});
 
-  // Future<void> updateReservation(String restaurantId) async {
-  //   final supabase = Supabase.instance.client;
+      print("Reservation deleted successfully");
 
-  //   final response = await supabase
-  //       .from('reservation_table')
-  //       .delete()
-  //       .match({'restaurant_id': restaurantId});
-
-  //   if (response.error != null) {
-  //     print("Error deleting reservation: ${response.error!.message}");
-  //   } else {
-  //     print("Reservation deleted successfully");
-  //   }
-  // }
+      /// ✅ **Fetch the updated list after deleting**
+      await fetchReservations();
+    } catch (e) {
+      print("Error deleting reservation: $e");
+    }
+  }
 }

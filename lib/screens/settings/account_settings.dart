@@ -10,6 +10,7 @@ import 'package:restaurent/screens/navigation/main-navigation.dart';
 import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/screens/settings/edit_profile_screen.dart';
 import 'package:restaurent/screens/settings/order_history_page.dart';
+import 'package:restaurent/screens/settings/payment_history_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -242,64 +243,77 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                   return Card(
                     color: Colors.grey[850],
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 12),
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 8,
-                            spreadRadius: 2,
-                            offset: Offset(2, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "#${order.id}",
-                                style: TextStyle(
-                                    color: Colors.white70, fontSize: 14),
-                              ),
-                              Text(
-                                "₹${order.totalPrice.toStringAsFixed(2)}",
-                                style: TextStyle(
+                    child: GestureDetector(
+                      onTap: () {
+                        print('object');
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 12),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[900],
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                              offset: Offset(2, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    "#${order.id}",
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Text(
+                                  "₹${order.totalPrice.toStringAsFixed(2)}",
+                                  style: TextStyle(
                                     color: Colors.greenAccent,
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatusChip(order.status),
-                              Text(
-                                formattedDate,
-                                style: TextStyle(
-                                    color: Colors.white38, fontSize: 12),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Divider(color: Colors.white10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              _buildActionButton(
-                                  Icons.local_shipping, "Track", Colors.orange),
-                            ],
-                          ),
-                        ],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildStatusChip(order.status),
+                                Text(
+                                  formattedDate,
+                                  style: TextStyle(
+                                      color: Colors.white38, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Divider(color: Colors.white10),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                _buildActionButton(Icons.local_shipping,
+                                    "Track", Colors.orange),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -332,107 +346,135 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget buildPaymentDetails() {
+  Widget buildPaymentHistoryDetails(BuildContext context) {
     // Keeping the original implementation
     return Consumer(
       builder: (context, ref, child) {
-        final paymentData = ref.watch(paymentProvider);
-
-        return paymentData.when(
-          data: (payments) {
-            if (payments.isEmpty) {
-              return Center(
-                  child: Text("No payments found",
-                      style: TextStyle(color: Colors.white70)));
-            }
-
-            return Column(
-              children: payments.map((payment) {
-                return Card(
-                  color: Colors.grey[850],
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          "₹${payment.amount.toStringAsFixed(2)} - ${payment.method}",
-                          style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              payment.status,
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "${payment.createdAt.toLocal()}",
-                              style: TextStyle(color: Colors.white70),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            );
-          },
-          loading: () => Center(child: CircularProgressIndicator()),
-          error: (err, _) => Center(
-              child: Text("Error: $err", style: TextStyle(color: Colors.red))),
+        return Column(
+          children: [],
         );
       },
     );
   }
+}
 
-  String _formatDate(String dateString) {
-    try {
-      DateTime dateTime = DateTime.parse(dateString);
-      return DateFormat('dd MMM yyyy, hh:mm a').format(dateTime);
-    } catch (e) {
-      return "Invalid Date"; // Handle invalid date
-    }
-  }
+Widget buildPaymentDetails() {
+  // Keeping the original implementation
+  return Consumer(
+    builder: (context, ref, child) {
+      final paymentData = ref.watch(paymentProvider);
 
-  Widget _buildStatusChip(String status) {
-    Color statusColor = Colors.blue;
-    if (status == "Delivered") statusColor = Colors.green;
-    if (status == "Cancelled") statusColor = Colors.red;
-    if (status == "Pending") statusColor = Colors.orange;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-            color: statusColor, fontSize: 12, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
+      return paymentData.when(
+        data: (payments) {
+          if (payments.isEmpty) {
+            return Center(
+                child: Text("No payments found",
+                    style: TextStyle(color: Colors.white70)));
+          }
 
-  Widget _buildActionButton(IconData icon, String label, Color color) {
-    return TextButton.icon(
-      onPressed: () {},
-      icon: Icon(icon, color: color, size: 18),
-      label: Text(label, style: TextStyle(color: color)),
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        backgroundColor: color.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
+          return Column(children: [
+            ...payments.map((payment) {
+              return Card(
+                color: Colors.grey[850],
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        "₹${payment.amount.toStringAsFixed(2)} - ${payment.method}",
+                        style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            payment.status,
+                            style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "${payment.createdAt.toLocal()}",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+            SizedBox(height: 5),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PaymentHistoryScreen()),
+                );
+              },
+              child: Text(
+                "View All Payments",
+                style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ]);
+        },
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(
+            child: Text("Error: $err", style: TextStyle(color: Colors.red))),
+      );
+    },
+  );
+}
+
+String _formatDate(String dateString) {
+  try {
+    DateTime dateTime = DateTime.parse(dateString);
+    return DateFormat('dd MMM yyyy, hh:mm a').format(dateTime);
+  } catch (e) {
+    return "Invalid Date"; // Handle invalid date
   }
+}
+
+Widget _buildStatusChip(String status) {
+  Color statusColor = Colors.blue;
+  if (status == "Delivered") statusColor = Colors.green;
+  if (status == "Cancelled") statusColor = Colors.red;
+  if (status == "Pending") statusColor = Colors.orange;
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: statusColor.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(
+      status,
+      style: TextStyle(
+          color: statusColor, fontSize: 12, fontWeight: FontWeight.bold),
+    ),
+  );
+}
+
+Widget _buildActionButton(IconData icon, String label, Color color) {
+  return TextButton.icon(
+    onPressed: () {},
+    icon: Icon(icon, color: color, size: 18),
+    label: Text(label, style: TextStyle(color: color)),
+    style: TextButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      backgroundColor: color.withOpacity(0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
+  );
 }
