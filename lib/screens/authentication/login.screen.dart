@@ -3,14 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/screens/authentication/register_screen.dart';
+import 'package:restaurent/screens/navigation/main-navigation.dart';
 import 'package:restaurent/widgets/custom_button.dart';
 import 'package:restaurent/widgets/custom_text.dart';
 import 'package:restaurent/widgets/custom_textfield.dart';
 import 'package:restaurent/widgets/custom_toast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../home/home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   ConsumerState createState() => _LoginScreenState();
 }
@@ -21,44 +23,109 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
-  Future<void> _loginUser() async {
-    final supabase = Supabase.instance.client;
+  // Future<void> _loginUser() async {
+    // final supabase = Supabase.instance.client;
 
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+    // if (_formKey.currentState!.validate()) {
+      // setState(() {
+        // _isLoading = true;
+      // });
 
-      try {
-        final response = await supabase.auth.signInWithPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
+      // try {
+        // final response = await supabase.auth.signInWithPassword(
+          // email: _emailController.text.trim(),
+          // password: _passwordController.text.trim(),
+        // );
 
-        if (response.user != null) {
-          final loggedInUser = response.user;
-          if (loggedInUser != null) {
-            ref.read(authProvider.notifier).state = loggedInUser;
-          }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-          );
+        // if (response.user != null) {
+          // final loggedInUser = response.user;
+          // if (loggedInUser != null) {
+            // ref.read(authProvider.notifier).state = loggedInUser;
+            // 
+            // Ensure Supabase session is initialized before navigating
+            // await supabase.auth.refreshSession();
+          // final session = supabase.auth.currentSession;
+            // if (session == null) {
+              // throw Exception("Session initialization failed.");
+            // }
+          // }
+
+          // Navigator.pushReplacement(
+            // context,
+            // MaterialPageRoute(builder: (context) => MainNavigation()),
+          // );
+        // }
+      // } catch (e) {
+        // print("Login error: $e");
+
+        // FlushbarUtils.showErrorFlushbar(
+          // context,
+          // Strings.loginerrortext,
+        // );
+      // } finally {
+        // setState(() {
+          // _isLoading = false;
+        // });
+      // }
+    // }
+  // }
+Future<void> _loginUser() async {
+  final supabase = Supabase.instance.client;
+
+  if (_formKey.currentState!.validate()) {
+    // Close the keyboard before login process starts
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // 1️⃣ Sign in user
+      final response = await supabase.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (response.user != null) {
+        // 2️⃣ Wait for Supabase to update the session
+        await Future.delayed(Duration(seconds: 1));
+
+        // 3️⃣ Force refresh session
+        await supabase.auth.refreshSession();
+
+        // 4️⃣ Get the latest session to ensure correct user data
+        final session = supabase.auth.currentSession;
+        if (session == null) {
+          throw Exception("Session initialization failed.");
         }
-      } catch (e) {
-        setState(() {});
 
-        FlushbarUtils.showErrorFlushbar(
+
+
+
+        // 5️⃣ Update Riverpod provider with the correct user
+        ref.read(authProvider.notifier).state = session.user;
+
+        // 6️⃣ Navigate to MainNavigation with the correct user
+        Navigator.pushReplacement(
           context,
-          Strings.loginerrortext,
+          MaterialPageRoute(builder: (context) => MainNavigation()),
         );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
       }
+    } catch (e) {
+      print("Login error: $e");
+
+      FlushbarUtils.showErrorFlushbar(
+        context,
+        "Login failed. Please try again.",
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
+  
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +186,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 SizedBox(height: 40),
                 SizedBox(height: 20),
                 _isLoading
-                    ? CircularProgressIndicator()
+                    ? CircularProgressIndicator(color: Colors.orange,)
                     : CustomButton(
                         onPressed: _loginUser,
                         text: Strings.loginText,

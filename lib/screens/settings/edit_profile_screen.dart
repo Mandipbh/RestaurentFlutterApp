@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -225,14 +226,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (mounted) {
         ref.read(userProvider.notifier).loadUser();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
+
+          const SnackBar(content: Text('Profile updated successfully'),backgroundColor: Colors.green,
+        ),
+          
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating profile: $e')),
+          SnackBar(content: Text('Error updating profile: $e'),backgroundColor: Colors.red),
         );
         print('Error updating profile: $e');
       }
@@ -260,7 +264,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ),
       ),
       body: user == null
-          ? Center(child: CircularProgressIndicator(color: Colors.white))
+          ? Center(child: CircularProgressIndicator(color: Colors.orange))
           : SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
               child: Form(
@@ -340,6 +344,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       label: 'Phone',
                       icon: Icons.phone,
                       keyboardType: TextInputType.phone,
+                      maxLength: 10, // Added max length
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your phone number';
@@ -364,7 +369,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     _isLoading
                         ? CircularProgressIndicator(color: Colors.orange)
                         : ElevatedButton(
-                            onPressed: _updateProfile,
+                            onPressed: () {
+                              FocusScope.of(context).unfocus(); 
+                              _updateProfile();
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
                               padding: EdgeInsets.symmetric(
@@ -400,6 +408,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
+    int? maxLength,
     String? Function(String?)? validator,
   }) {
     return Container(
@@ -410,8 +419,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       child: TextFormField(
         controller: controller,
         style: TextStyle(color: Colors.white),
-        keyboardType: keyboardType,
+        keyboardType: label.toLowerCase() == "phone"
+            ? TextInputType.phone
+            : label.toLowerCase() == "email"
+                ? TextInputType.emailAddress
+                : TextInputType.text,
         maxLines: maxLines,
+        maxLength: maxLength,
         validator: validator,
         decoration: InputDecoration(
           labelText: label,
@@ -422,6 +436,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             borderSide: BorderSide.none,
           ),
           contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          counterText: "", // Hide character count
         ),
       ),
     );

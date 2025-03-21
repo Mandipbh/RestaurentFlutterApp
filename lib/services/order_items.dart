@@ -38,7 +38,7 @@ class OrderDetailsScreen extends ConsumerWidget {
               data: (items) => items.isEmpty
                   ? _buildEmptyState()
                   : _buildOrderItemsList(items),
-              loading: () => Center(child: CircularProgressIndicator()),
+              loading: () => Center(child: CircularProgressIndicator(color: Colors.orange,)),
               error: (error, _) => Center(
                 child: Text("Error: $error", style: TextStyle(color: Colors.red)),
               ),
@@ -46,7 +46,7 @@ class OrderDetailsScreen extends ConsumerWidget {
             SizedBox(height: 20),
             _buildInfoCard('Delivery Address', deliveryAddress, Icons.location_on),
             _buildInfoCard('Total Price', '₹${totalPrice.toStringAsFixed(2)}', Icons.monetization_on),
-            _buildConfirmButton(context),
+            // _buildConfirmButton(context),
           ],
         ),
       ),

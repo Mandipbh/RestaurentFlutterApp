@@ -26,24 +26,79 @@ class PaymentScreen extends ConsumerStatefulWidget {
 }
 
 class _PaymentScreenState extends ConsumerState<PaymentScreen> {
-  void _payWithCard() {
-    StripeService.instance.makePayment(
-      widget.totalPrice,
-      widget.userAddress,
-      widget.cartItems,
-      context,
-      widget.userId,
-    );
-  }
+  bool _isLoading = false;
 
-  void _cashOnDelivery() {
-    print("Cash on Delivery selected");
+  // void _payWithCard() async {
+    // setState(() {
+      // _isLoading = true; // Show loader
+    // });
 
-    Navigator.push(
+    // bool paymentSuccess = false;
+    // await StripeService.instance.makePayment(
+      // widget.totalPrice,
+      // widget.userAddress,
+      // widget.cartItems,
+      // context,
+      // widget.userId,
+    // ).then((success) {
+      // paymentSuccess = true;
+    // }).catchError((error) {
+      // paymentSuccess = false;
+    // });
+
+    // setState(() {
+      // _isLoading = false; // Hide loader
+    // });
+
+    // if (paymentSuccess) {
+      // Navigator.pushReplacement(
+        // context,
+        // MaterialPageRoute(builder: (context) => OrderScreen()),
+      // );
+    // } else {
+      // ScaffoldMessenger.of(context).showSnackBar(
+        // SnackBar(
+          // content: Text("Payment cancelled"),
+          // backgroundColor: Colors.red,
+          // duration: Duration(seconds: 2),
+        // ),
+      // );
+    // }
+  // }
+
+  void _payWithCard() async {
+  setState(() {
+    _isLoading = true; // Show loader
+  });
+
+  bool paymentSuccess = await StripeService.instance.makePayment(
+    widget.totalPrice,
+    widget.userAddress,
+    widget.cartItems,
+    context,
+    widget.userId,
+  );
+
+  setState(() {
+    _isLoading = false; // Hide loader
+  });
+
+  if (paymentSuccess) {
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => OrderScreen()),
     );
+  } else {
+    // Handle case when user cancels without entering details
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Payment was cancelled."),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -61,45 +116,76 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         ),
       ),
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                  child: CartItemList(
-                cartItems: widget.cartItems,
-                userId: user!.id,
-                isPayment: true,
-                onQuantityChanged: () {},
-              )),
-              SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade900,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Total Price:',
-                      style: TextStyle(color: Colors.white),
+                    SizedBox(
+                      child: CartItemList(
+                        cartItems: widget.cartItems,
+                        userId: user!.id,
+                        isPayment: true,
+                        onQuantityChanged: () {},
+                      ),
                     ),
-                    Text(
-                      widget.totalPrice.toStringAsFixed(2),
-                      style: TextStyle(color: Colors.white),
+                    SizedBox(height: 20),
+                    if(widget.cartItems.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade900,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total Price:',
+                            style: TextStyle(color: Colors.white,fontSize: 16),
+                          ),
+                          Text(
+                           '₹ ${widget.totalPrice.toStringAsFixed(2)}',
+                            style: TextStyle(color: Colors.orange, fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
+                                        if(widget.cartItems.isNotEmpty)
+
+                    _paymentMethods(),
                   ],
                 ),
               ),
-              _paymentMethods(),
-            ],
+            ),
           ),
-        ),
+                              if(widget.cartItems.isNotEmpty)
+
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16),
+            color: Colors.black,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _payWithCard,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                minimumSize: Size(double.infinity, 50),
+              ),
+              child: _isLoading
+                  ? CircularProgressIndicator(color: Colors.orange)
+                  : Text(
+                      "Confirm & Pay Now Via Stripe 😊",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -135,31 +221,6 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           ),
         ),
         SizedBox(height: 20),
-        Text("Pay via Credit & Debit Cards",
-            style: TextStyle(color: Colors.white, fontSize: 18)),
-        ElevatedButton(
-          onPressed: () {
-            _payWithCard();
-
-            // Navigator.push(
-            // context,
-            // MaterialPageRoute(
-            // builder: (context) => PaymentMethodsScreen(payWithCard: _payWithCard),
-            // ),
-// );
-//
-            //
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey.shade900,
-            minimumSize: Size(double.infinity, 50),
-          ),
-          child: Text(
-            "Pay Now",
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-        ),
       ],
     );
   }

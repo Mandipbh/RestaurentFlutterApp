@@ -127,7 +127,8 @@ class CombinationBreakfastList extends ConsumerWidget {
                       if (!isInCart) {
                         ref
                             .read(cartProvider.notifier)
-                            .addToCart(user.id, combinationBreakfastId: food['id'],  quantity: 1);
+                            .addToCart(                                        context,
+user.id, combinationBreakfastId: food['id'],  quantity: 1,  restaurentId: food['restaurant_id']);
                       }
                     },
                     child: Container(
@@ -167,7 +168,7 @@ class CombinationBreakfastList extends ConsumerWidget {
             },
           );
           } ,
-          loading: () => Center(child: CircularProgressIndicator()),
+          loading: () => Container(),
           error: (err, stack) => Center(child: Text("Error: $err")),
         ),
       ),

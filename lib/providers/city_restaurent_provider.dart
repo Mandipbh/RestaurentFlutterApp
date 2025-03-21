@@ -13,12 +13,19 @@ final cityProvider = FutureProvider<List<City>>((ref) async {
   return response.map((json) => City.fromJson(json)).toList();
 });
 
-// Selected City Provider
-final selectedCityProvider = StateProvider<City?>((ref) => null);
+// Selected City Provider with Default City
+final selectedCityProvider = StateProvider<City?>((ref) {
+  final cities = ref.watch(cityProvider).asData?.value;
+  return cities != null && cities.isNotEmpty ? cities.first : null; // Default to first city
+});
+
+// Search Provider
+final searchProvider = StateProvider<String>((ref) => "");
 
 // Fetch Restaurants based on selected city
 final restaurantProvider = FutureProvider.autoDispose<List<Restaurant>>((ref) async {
   final selectedCity = ref.watch(selectedCityProvider);
+  final searchQuery = ref.watch(searchProvider);
   if (selectedCity == null) return [];
 
   final response = await supabase
@@ -26,5 +33,8 @@ final restaurantProvider = FutureProvider.autoDispose<List<Restaurant>>((ref) as
       .select()
       .eq('city_id', selectedCity.id);
 
-  return response.map((json) => Restaurant.fromJson(json)).toList();
+  final restaurants = response.map((json) => Restaurant.fromJson(json)).toList();
+
+  return restaurants.where((restaurant) =>
+      restaurant.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
 });

@@ -1,5 +1,6 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/constants/images.dart';
@@ -19,7 +20,6 @@ import 'package:restaurent/screens/home/widgets/promo_banner.dart';
 import 'package:restaurent/screens/home/widgets/recommended_breakfast_list.dart';
 import 'package:restaurent/screens/home/widgets/searchbar.dart';
 import 'package:restaurent/screens/order_food/search_results_counter.dart';
-import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/screens/splash/splash.dart';
 import 'package:restaurent/widgets/custom_divider.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
@@ -35,6 +35,19 @@ class OrderFood extends ConsumerStatefulWidget {
 
 class _OrderFoodState extends ConsumerState<OrderFood> {
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Refresh providers when the user navigates to this screen
+    ref.invalidate(catListProvider);
+    ref.invalidate(selectedCategoryIdProvider);
+    ref.invalidate(foodListProvider);
+    ref.invalidate(userProvider);
+    
+    setState(() {}); // Trigger UI rebuild
+  }
+  
+  @override
   Widget build(BuildContext context) {
     final categoryAsync = ref.watch(catListProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
@@ -42,17 +55,52 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
     final user = ref.watch(authProvider);
     final userDetail = ref.watch(userProvider);
     final searchQuery = ref.watch(searchQueryProvider);
-
+    final cartItems = ref.watch(cartProvider);
     final categoriesAsync = ref.watch(menuCategoriesProvider);
     final breakfastAsync = ref.watch(breakfastItemsProvider);
     final recommendedAsync = ref.watch(recommendedBreakfastsProvider);
-    final cartItems = ref.watch(cartProvider);
-
+    
     // Check if any results will be shown based on the current search
+
+      Future<bool> showExitConfirmationDialog(BuildContext context) async {
+    bool? result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false, 
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey.shade900,
+        title: Text(
+          "Exit App",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          "Do you want to close the app?",
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false), 
+            style: TextButton.styleFrom(foregroundColor: Colors.green),
+            child: Text("No"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text("Yes"),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      SystemNavigator.pop();
+      return true;
+    }
+    return false; 
+  }
+
     bool hasNoResults = searchQuery.isNotEmpty &&
         foodItems.maybeWhen(
           data: (foods) =>
-              foods == null ||
               foods
                   .where((food) =>
                       matchesSearchQuery(food['name'] ?? '', searchQuery))
@@ -61,7 +109,6 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
         ) &&
         breakfastAsync.maybeWhen(
           data: (foods) =>
-              foods == null ||
               foods
                   .where((food) =>
                       matchesSearchQuery(food['name'] ?? '', searchQuery))
@@ -70,7 +117,6 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
         ) &&
         recommendedAsync.maybeWhen(
           data: (foods) =>
-              foods == null ||
               foods
                   .where((food) =>
                       matchesSearchQuery(food['name'] ?? '', searchQuery))
@@ -78,7 +124,19 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
           orElse: () => false,
         );
 
-    return Scaffold(
+      return WillPopScope(
+   onWillPop: () async {
+  
+  
+return showExitConfirmationDialog(context);  
+  
+  
+  
+  
+   },child: 
+    
+    
+    Scaffold(
       backgroundColor: AppColors.black,
       appBar: AppBar(
         backgroundColor: AppColors.black,
@@ -134,35 +192,35 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CartScreen()),
+                    MaterialPageRoute(builder: (context) => CartScreen(2)),
                   );
                 },
               ),
-              if (cartItems.isNotEmpty)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: badges.Badge(
-                    badgeContent: Text(
-                      cartItems.length.toString(),
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                    badgeStyle: badges.BadgeStyle(
-                      badgeColor: Colors.red,
-                    ),
-                  ),
-                ),
+              Consumer(
+                builder: (context, ref, child) {
+                  final cartItems = ref.watch(cartProvider);
+                  return cartItems.isNotEmpty
+                      ? Positioned(
+                          right: 8,
+                          top: 8,
+                          child: badges.Badge(
+                            badgeContent: Text(
+                              cartItems.length.toString(),
+                              style: TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                            badgeStyle: badges.BadgeStyle(
+                              badgeColor: Colors.red,
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink();
+                },
+              ),
             ],
           ),
-          IconButton(
-            icon: Icon(Icons.logout, color: AppColors.white),
-            onPressed: () => logout(context),
-          ),
           // IconButton(
-          //   icon: Icon(Icons.logout),
-          //   onPressed: () {
-          //     _showLogoutDialog(context);
-          //   },
+            // icon: Icon(Icons.logout, color: AppColors.white),
+            // onPressed: () => _showLogoutDialog(context),
           // ),
         ],
       ),
@@ -220,14 +278,7 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
 
               if (!hasNoResults) ...[
                 CustomSizedBox.h10,
-                PromoBannerWidget(
-                  imagePaths: [
-                    Images.banner,
-                    Images.banner,
-                    Images.banner,
-                    Images.banner,
-                  ],
-                ),
+                PromoBannerWidget(),
                 CustomSizedBox.h10,
                 if (user != null)
                   CategoryFoodList(
@@ -270,39 +321,11 @@ class _OrderFoodState extends ConsumerState<OrderFood> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
-}
 
-// void _showLogoutDialog(BuildContext context) {
-//   showDialog(
-//     context: context,
-//     barrierDismissible: false,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text("Logout"),
-//         content: Text("Are you sure you want to logout?"),
-//         actions: [
-//           TextButton(
-//             onPressed: () {
-//               Navigator.of(context).pop(); // Close dialog
-//             },
-//             child: Text("Cancel", style: TextStyle(color: Colors.black)),
-//           ),
-//           TextButton(
-//             onPressed: () {
-//               Navigator.of(context).pop(); // Close dialog
-//               Future.delayed(Duration(milliseconds: 300), () {
-//                 logout(context);
-//               });
-//             },
-//             child: Text("Logout", style: TextStyle(color: Colors.red)),
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }
+}
 
 Future<void> logout(BuildContext context) async {
   try {

@@ -14,13 +14,7 @@ class OrderModel {
   });
 
  
- 
- 
- 
- 
- 
- 
- 
+       
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
    return OrderModel(

@@ -1,0 +1,2 @@
+/Users/gauravkumar/Desktop/kavita/RestaurentFlutterApp/android/app/.cxx/RelWithDebInfo/5i6e612c/x86/CMakeFiles/edit_cache.dir
+/Users/gauravkumar/Desktop/kavita/RestaurentFlutterApp/android/app/.cxx/RelWithDebInfo/5i6e612c/x86/CMakeFiles/rebuild_cache.dir

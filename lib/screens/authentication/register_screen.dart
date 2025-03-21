@@ -8,6 +8,8 @@ import 'package:restaurent/widgets/custom_toast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
+
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -16,11 +18,21 @@ class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
+  final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
 
   final supabase = Supabase.instance.client;
 
   Future<void> signUp() async {
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _addressController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      FlushbarUtils.showErrorFlushbar(context, "All fields are mandatory.");
+      return;
+    }
+
     try {
       final response = await supabase.auth.signUp(
         email: _emailController.text,
@@ -31,12 +43,22 @@ class _AuthScreenState extends State<AuthScreen> {
       if (response.user != null) {
         print('User registered: ${response.user!.email}');
         await insertUserData(response.user!.id, _nameController.text,
-            _emailController.text, _phoneController.text);
-        FlushbarUtils.showSuccessFlushbar(context, Strings.signupsuccess);
+            _emailController.text, _phoneController.text, _addressController.text);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Registration successful!"),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+
         _nameController.clear();
         _emailController.clear();
         _passwordController.clear();
         _phoneController.clear();
+        _addressController.clear();
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -56,18 +78,22 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> insertUserData(
-      String userId, String fullName, String email, String phone) async {
+      String userId, String fullName, String email, String phone, String address) async {
     try {
       await supabase.from('users').insert({
         'id': userId,
         'full_name': fullName,
         'email': email,
         'phone': phone,
-        'address': '',
+        'address': address,
         'profile_pic':
             'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6V99HAvYPLbG2hkKh5QK9aGnRmvwaWhc132y9Q0Rf_B2Wmy2R-OHr_sk&s',
         'created_at': DateTime.now().toIso8601String(),
       });
+
+      await supabase.from('auth.users').update({
+          'email_confirmed_at': 'now()',
+        }).eq('email', email);
       print('User data inserted successfully');
     } catch (e) {
       print('Error inserting user data: $e');
@@ -145,6 +171,20 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               SizedBox(height: 25),
               CustomTextField(
+                nameController: _addressController,
+                labelText: Strings.address,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Address is required";
+                  }
+                  if (value.length < 30) {
+                    return "Address must be at least 30 characters";
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 25),
+              CustomTextField(
                 nameController: _passwordController,
                 labelText: Strings.password,
                 isPassword: true,
@@ -162,7 +202,10 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               SizedBox(height: 40),
               CustomButton(
-                onPressed: signUp,
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  signUp();
+                },
                 text: Strings.signin,
               ),
               SizedBox(height: 30),

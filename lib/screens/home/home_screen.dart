@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:restaurent/screens/navigation/main-navigation.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -14,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+    
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),

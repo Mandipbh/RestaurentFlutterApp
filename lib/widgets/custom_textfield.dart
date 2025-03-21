@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatefulWidget {
   const CustomTextField({
@@ -37,13 +38,21 @@ class _CustomTextFieldState extends State<CustomTextField> {
           controller: widget.nameController,
           obscureText: widget.isPassword ? _obscureText : false,
           style: TextStyle(color: Colors.white.withOpacity(0.8)),
+          keyboardType: widget.labelText.toLowerCase() == "phone"
+              ? TextInputType.number
+              : widget.labelText.toLowerCase() == "email"
+                  ? TextInputType.emailAddress
+                  : TextInputType.text,
+          inputFormatters: widget.labelText.toLowerCase() == "phone"
+              ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)]
+              : [],
           decoration: InputDecoration(
             labelText: widget.labelText,
             labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
             filled: true,
             fillColor: const Color.fromARGB(255, 27, 27, 32),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20), // Rounded corners
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(

@@ -59,7 +59,7 @@ class CategoryListImageTitle extends ConsumerWidget {
             );
           },
         ),
-        loading: () => Center(child: CircularProgressIndicator()),
+        loading: () => Center(child: CircularProgressIndicator(color: Colors.orange,)),
         error: (err, stack) =>
             Text('Error: $err', style: TextStyle(color: Colors.red)),
       ),

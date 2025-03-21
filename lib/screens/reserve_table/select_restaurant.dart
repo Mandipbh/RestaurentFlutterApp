@@ -5,7 +5,6 @@ import 'package:restaurent/constants/strings.dart';
 import 'package:restaurent/model/city.dart';
 import 'package:restaurent/model/restaurants.dart';
 import 'package:restaurent/providers/city_provider.dart';
-import 'package:restaurent/screens/reserve_table/reserve_table.dart';
 import 'package:restaurent/screens/reserve_table/table_reservation.dart';
 import 'package:restaurent/widgets/custom_sizebox.dart';
 import 'package:restaurent/widgets/custom_text.dart';
@@ -105,7 +104,7 @@ class _SelectRestaurantState extends ConsumerState<SelectRestaurant> {
                 CustomSizedBox.h10,
 
                 cityList.when(
-                    loading: () => Center(child: CircularProgressIndicator()),
+                    loading: () => Center(child: CircularProgressIndicator(color: Colors.orange,)),
                     error: (err, stack) => Center(
                           child: CustomText(
                               text: Strings.error_load_city,
@@ -154,7 +153,7 @@ class _SelectRestaurantState extends ConsumerState<SelectRestaurant> {
 
                 Expanded(
                   child: restaurantList.when(
-                    loading: () => Center(child: CircularProgressIndicator()),
+                    loading: () => Center(child: CircularProgressIndicator(color: Colors.orange,)),
                     error: (err, stack) => Center(
                       child: CustomText(
                           text: Strings.error_load_city,

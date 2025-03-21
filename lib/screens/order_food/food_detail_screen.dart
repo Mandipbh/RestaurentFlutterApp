@@ -1,5 +1,7 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurent/constants/colors.dart';
 import 'package:restaurent/providers/auth_provider.dart';
 import 'package:restaurent/providers/cart_provider.dart';
 import 'package:restaurent/providers/food_provider.dart';
@@ -16,7 +18,6 @@ class FoodDetailScreens extends ConsumerStatefulWidget {
 
 class _FoodState extends ConsumerState<FoodDetailScreens> {
   List<Map<String, dynamic>> reviews = [];
-
   @override
   void initState() {
     super.initState();
@@ -56,23 +57,68 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
     final size = MediaQuery.of(context).size;
+    final cartItems = ref.watch(cartProvider);
+    bool isInCart = cartItems.any((item) {
+      String cartItemId = item['food_items']?['id']?.toString() ??
+          item['combination_breakfast']?['id']?.toString() ??
+          item['recommended_breakfast']?['id']?.toString() ??
+          item['all_foods']?['id']?.toString() ??
+          '';
+
+      return cartItemId == widget.food['id'].toString();
+    });
+
+    print('dcetail of it is in cart >> $isInCart');
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.black.withOpacity(0.5),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        // actions: [
-        // IconButton(
-        // icon: Icon(Icons.shopping_cart, color: Colors.white),
-        // onPressed: () {},
-        // ),
-        // ],
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.shopping_cart, color: AppColors.white),
+                onPressed: () {
+                  // if (cartItems.isEmpty) {
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                      // SnackBar(
+                        // content: Text("No items in the cart"),
+                        // backgroundColor: Colors.red,
+                        // duration: Duration(seconds: 2),
+                      // ),
+                    // );
+                  // } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CartScreen(2)),
+                    );
+                  // }
+                },
+              ),
+              if (cartItems.isNotEmpty)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: badges.Badge(
+                    badgeContent: Text(
+                      cartItems.length.toString(),
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: Colors.red,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -184,60 +230,85 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                       ),
                       SizedBox(height: 10),
                       Container(
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 51, 50, 50),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(24),
-                          ),
-                        ),
                         padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         child: SizedBox(
                           width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade900,
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (widget.type == 'recommended_breakfast') {
-                                ref.read(cartProvider.notifier).addToCart(
-                                    user!.id,
-                                    recommendedBreakfastId: widget.food['id'],
-                                    quantity: 1);
-                              } else if (widget.type == 'combination_breakfast') {
-                                ref.read(cartProvider.notifier).addToCart(
-                                    user!.id,
-                                    combinationBreakfastId: widget.food['id'],
-                                    quantity: 1);
-                              }else if(widget.type == 'food_items'){
-  ref.read(cartProvider.notifier).addToCart(
-      user!.id,
-      foodId: widget.food['id'],
-      quantity: 1);
-                              } else {
-                                ref.read(cartProvider.notifier).addToCart(
-                                    user!.id,
-                                    allFoodId: widget.food['id'],
-                                    quantity: 1);
-                              }
+                          child: GestureDetector(
+                            onTap: isInCart
+                                ? null
+                                : () {
+                                    if (widget.type ==
+                                        'recommended_breakfast') {
+                                      ref.read(cartProvider.notifier).addToCart(
+                                        context,
+                                          user!.id,
+                                          recommendedBreakfastId:
+                                              widget.food['id'],
+                                          quantity: 1, restaurentId: widget.food['restaurant_id']);
+                                    } else if (widget.type ==
+                                        'combination_breakfast') {
+                                      ref.read(cartProvider.notifier).addToCart(
+                                                                                context,
 
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CartScreen()),
-                              );
-                            },
-                            child: Text(
-                              'ADD TO CART',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                          user!.id,
+                                          combinationBreakfastId:
+                                              widget.food['id'],
+                                          quantity: 1,  restaurentId: widget.food['restaurant_id']);
+                                    } else if (widget.type == 'food_items') {
+                                      ref.read(cartProvider.notifier).addToCart(
+                                                                                context,
+
+                                          user!.id,
+                                          foodId: widget.food['id'],
+                                          quantity: 1, restaurentId: widget.food['restaurant_id']);
+                                    } else {
+                                      ref.read(cartProvider.notifier).addToCart(
+                                                                                context,
+
+                                          user!.id,
+                                          allFoodId: widget.food['id'],
+                                          quantity: 1, restaurentId: widget.food['restaurant_id']);
+                                    }
+                              
+                              
+                              
+                              
+                              
+                              
+                              
+                                    //  Navigator.pushReplacement(
+                                    //  context,
+                                    //  MaterialPageRoute(
+                                    //  builder: (context) => CartScreen()),
+                                    //  );
+                                  },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isInCart
+                                    ? Colors.orange
+                                    : Colors.grey.shade900,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: Center(
+                                  child: Text(
+                                    isInCart
+                                        ? "ALREADY ADDED 🛒"
+                                        : "ADD TO CART 🛒",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -291,86 +362,87 @@ class _FoodState extends ConsumerState<FoodDetailScreens> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      if(reviews.isNotEmpty)
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Reviews',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                      if (reviews.isNotEmpty)
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Reviews',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: reviews.length,
-                              padding: EdgeInsets.zero,
-                              itemBuilder: (context, index) {
-                                final review = reviews[index];
-                                return Card(
-                                  color: Colors.grey.shade900,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  margin: EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 16),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 24,
-                                          backgroundImage: NetworkImage(
-                                              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn9zilY2Yu2hc19pDZFxgWDTUDy5DId7ITqA&s'),
-                                        ),
-                                        SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                review['user_name'],
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16,
-                                                    color: Colors.white),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                review['review_text'],
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white),
-                                              ),
-                                              SizedBox(height: 6),
-                                              Row(
-                                                children: List.generate(
-                                                  review['rating'].toInt(),
-                                                  (index) => Icon(Icons.star,
-                                                      color: Colors.amber,
-                                                      size: 16),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: reviews.length,
+                                padding: EdgeInsets.zero,
+                                itemBuilder: (context, index) {
+                                  final review = reviews[index];
+                                  return Card(
+                                    color: Colors.grey.shade900,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      )
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 16),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 24,
+                                            backgroundImage: NetworkImage(
+                                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn9zilY2Yu2hc19pDZFxgWDTUDy5DId7ITqA&s'),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  review['user_name'],
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                      color: Colors.white),
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  review['review_text'],
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.white),
+                                                ),
+                                                SizedBox(height: 6),
+                                                Row(
+                                                  children: List.generate(
+                                                    review['rating'].toInt(),
+                                                    (index) => Icon(Icons.star,
+                                                        color: Colors.amber,
+                                                        size: 16),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        )
                     ],
                   ),
                 ),

@@ -50,7 +50,7 @@ class OrderTotalSummary extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.only(top: 40, bottom: 10, left: 10, right: 10),
+            padding: EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -110,8 +110,8 @@ class OrderTotalSummary extends StatelessWidget {
                 ),
                 CustomText(
                   text: "₹ ${grandTotal.toStringAsFixed(2)}",
-                  fontSize: 18,
-                  color: AppColors.white70,
+                  fontSize: 20,
+                  color: AppColors.orange,
                   fontWeight: FontWeight.bold,
                 ),
               ],

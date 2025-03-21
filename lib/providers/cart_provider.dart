@@ -1,3 +1,4 @@
+import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 
@@ -10,12 +11,14 @@ class CartNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   CartNotifier() : super([]);
 
   Future<void> addToCart(
+    BuildContext context,
     String userId, {
     String? foodId, 
     String? combinationBreakfastId, 
     String? recommendedBreakfastId,
-    String? allFoodId, // Added all_food_id
+    String? allFoodId, 
     int quantity = 1,
+    required String restaurentId, // Ensure restaurant ID is required
   }) async {
     if (foodId == null &&
         combinationBreakfastId == null &&
@@ -25,7 +28,30 @@ class CartNotifier extends StateNotifier<List<Map<String, dynamic>>> {
           'Either foodId, combinationBreakfastId, recommendedBreakfastId, or allFoodId must be provided.');
     }
 
-    print(' fkajkfj >> $allFoodId');
+    // Fetch current cart items
+    final cartItems = await Supabase.instance.client
+        .from('cart')
+        .select('restaurent_id')
+        .eq('user_id', userId);
+
+    // Check if the cart contains items from a different restaurant
+    if (cartItems.isNotEmpty && cartItems[0]['restaurent_id'] != restaurentId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Cannot add items from different restaurant. Clear the cart first."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }else{
+            ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Added to Cart 🛒"),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
 
     await Supabase.instance.client.from('cart').insert({
       'user_id': userId,
@@ -34,8 +60,9 @@ class CartNotifier extends StateNotifier<List<Map<String, dynamic>>> {
         'combination_breakfast_id': combinationBreakfastId,
       if (recommendedBreakfastId != null)
         'recommended_breakfast_id': recommendedBreakfastId,
-      if (allFoodId != null) 'all_food_id': allFoodId, // Insert allFoodId
+      if (allFoodId != null) 'all_food_id': allFoodId,
       'quantity': quantity,
+      'restaurent_id': restaurentId, // Ensure restaurant ID is stored
     });
 
     fetchCart(userId);
@@ -53,16 +80,6 @@ class CartNotifier extends StateNotifier<List<Map<String, dynamic>>> {
          recommended_breakfast!left(*)
        ''')
        .eq('user_id', userId);
-      // final response = await Supabase.instance.client
-          // .from('cart')
-          // .select('''
-            // *,
-            // food_items!left(*),
-            // combination_breakfast!left(*),
-            // recommended_breakfast!left(*),
-            // all_food!left(*) -- Fetch all_food data
-          // ''')
-          // .eq('user_id', userId);
 
       print("✅ Supabase Response: $response");
 

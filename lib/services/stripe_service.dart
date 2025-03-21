@@ -12,7 +12,7 @@ class StripeService {
 
   static final StripeService instance = StripeService._();
 
-  Future<void> makePayment(
+  Future<bool> makePayment(
       double totalPrice,
       String userAddress,
       List<Map<String, dynamic>> orderItems,
@@ -25,27 +25,29 @@ class StripeService {
 
       if (paymentIntentClientSecret == null) {
         debugPrint("Failed to create payment intent.");
-        return;
+        return false; // Return false if payment intent creation fails
       }
 
       debugPrint("Payment intent created successfully");
 
-      // Platform-specific approach
+      bool paymentSuccess = false;
+
       if (Platform.isAndroid) {
-        // For Android, use a simpler approach that's less likely to trigger OpenGL issues
-        await _handleAndroidPayment(paymentIntentClientSecret, totalPrice,
-            userAddress, orderItems, context, userId);
+        paymentSuccess = await _handleAndroidPayment(paymentIntentClientSecret,
+            totalPrice, userAddress, orderItems, context, userId);
       } else {
-        // For iOS, use the standard approach which works well
-        await _handleIOSPayment(paymentIntentClientSecret, totalPrice,
-            userAddress, orderItems, context, userId);
+        paymentSuccess = await _handleIOSPayment(paymentIntentClientSecret,
+            totalPrice, userAddress, orderItems, context, userId);
       }
+
+      return paymentSuccess;
     } catch (e) {
       debugPrint("Error during payment process: $e");
+      return false; // Ensure false is returned in case of error
     }
   }
 
-  Future<void> _handleAndroidPayment(
+  Future<bool> _handleAndroidPayment(
       String paymentIntentClientSecret,
       double totalPrice,
       String userAddress,
@@ -53,23 +55,21 @@ class StripeService {
       BuildContext context,
       String userId) async {
     try {
-      // Initialize with minimal UI options
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntentClientSecret,
           merchantDisplayName: "test",
-          // Minimal appearance settings
           appearance: PaymentSheetAppearance(
             colors: PaymentSheetAppearanceColors(
-              primary: Colors.blue,
-              background: Colors.white,
-              componentBackground: Colors.white,
+              primary: Colors.orange,
+              background: Colors.grey.shade900,
+              componentBackground: Colors.grey.shade900,
               componentBorder: Colors.grey,
               componentDivider: Colors.grey,
-              primaryText: Colors.black,
+              primaryText: Colors.white,
               secondaryText: Colors.grey,
               placeholderText: Colors.grey,
-              icon: Colors.grey,
+              icon: Colors.white,
             ),
           ),
         ),
@@ -77,27 +77,23 @@ class StripeService {
 
       debugPrint("Payment sheet initialized for Android");
 
-      // Present payment sheet in a try-catch block
-      bool presentSuccess = false;
       try {
         await Stripe.instance.presentPaymentSheet();
-        presentSuccess = true;
         debugPrint("Payment sheet presented successfully on Android");
-      } catch (e) {
-        debugPrint("Error presenting payment sheet on Android: $e");
-        return; // Exit if we couldn't even present the sheet
-      }
-
-      Future.delayed(Duration(seconds: 1), () {
-        _completePaymentProcess(paymentIntentClientSecret, totalPrice,
+        await _completePaymentProcess(paymentIntentClientSecret, totalPrice,
             userAddress, orderItems, context, userId);
-      });
+        return true; // Return true if payment is successful
+      } catch (e) {
+        debugPrint("User canceled the payment on Android: $e");
+        return false; // Return false if user cancels
+      }
     } catch (e) {
       debugPrint("Error in Android payment flow: $e");
+      return false; // Return false in case of any error
     }
   }
 
-  Future<void> _handleIOSPayment(
+  Future<bool> _handleIOSPayment(
       String paymentIntentClientSecret,
       double totalPrice,
       String userAddress,
@@ -105,7 +101,6 @@ class StripeService {
       BuildContext context,
       String userId) async {
     try {
-      // Standard flow for iOS
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntentClientSecret,
@@ -113,14 +108,19 @@ class StripeService {
         ),
       );
 
-      await Stripe.instance.presentPaymentSheet();
-      await Stripe.instance.confirmPaymentSheetPayment();
-
-      // If we get here without exceptions, payment was successful
-      await _completePaymentProcess(paymentIntentClientSecret, totalPrice,
-          userAddress, orderItems, context, userId);
+      try {
+        await Stripe.instance.presentPaymentSheet();
+        await Stripe.instance.confirmPaymentSheetPayment();
+        await _completePaymentProcess(paymentIntentClientSecret, totalPrice,
+            userAddress, orderItems, context, userId);
+        return true; // Return true if payment is successful
+      } catch (e) {
+        debugPrint("User canceled the payment on iOS: $e");
+        return false; // Return false if user cancels
+      }
     } catch (e) {
       debugPrint("Error in iOS payment flow: $e");
+      return false; // Return false in case of any error
     }
   }
 

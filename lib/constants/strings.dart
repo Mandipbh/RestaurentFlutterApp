@@ -12,6 +12,8 @@ class Strings {
   static const String fullname = 'Full Name';
   static const String email = 'Email';
   static const String phone = 'Phone';
+    static const String address = 'Address';
+
   static const String password = 'Password';
   static const String login = 'Login';
   static const String signin = 'Register';

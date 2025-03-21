@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:restaurent/constants/images.dart';
 import 'package:restaurent/constants/strings.dart';
-import 'package:restaurent/screens/onboarding/welcome_list.dart';
+import 'package:restaurent/screens/authentication/login.screen.dart';
 
-void main() {
-  runApp(MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: OnboardingScreen(),
-    );
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -120,7 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     } else {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => CategoryList()),
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
                       );
                     }
                   },

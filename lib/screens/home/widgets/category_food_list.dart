@@ -98,7 +98,10 @@ class CategoryFoodList extends ConsumerWidget {
               ),
             );
           },
-          loading: () => Center(child: CircularProgressIndicator()),
+          loading: () => Center(
+              child: CircularProgressIndicator(
+            color: Colors.orange,
+          )),
           error: (error, stack) => CustomText(
               text: error.toString(), fontSize: 16, color: AppColors.white),
         ),
@@ -108,9 +111,32 @@ class CategoryFoodList extends ConsumerWidget {
         foodItems.when(
           data: (foods) {
             if (foods.isEmpty) {
-              return Center(
-                  child: Text('No food items available',
-                      style: TextStyle(color: Colors.white)));
+              return Column(
+                children: [
+                  SizedBox(
+                    height: 230,
+                    child: Container(
+                      height: 140,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(12)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "No Food Available",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              );
             }
 
             // Filter foods based on search query
@@ -160,8 +186,8 @@ class CategoryFoodList extends ConsumerWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    FoodDetailScreens(food: food, type: 'food_items'),
+                                builder: (context) => FoodDetailScreens(
+                                    food: food, type: 'food_items'),
                               ),
                             );
                           },
@@ -239,9 +265,11 @@ class CategoryFoodList extends ConsumerWidget {
                                       if (!isInCart) {
                                         ref
                                             .read(cartProvider.notifier)
-                                            .addToCart(user.id,
+                                            .addToCart(context, user.id,
                                                 foodId: food['id'],
-                                                quantity: 1);
+                                                quantity: 1,
+                                                restaurentId:
+                                                    food['restaurant_id']);
                                       }
                                     },
                                     child: Container(
@@ -274,7 +302,7 @@ class CategoryFoodList extends ConsumerWidget {
               ),
             );
           },
-          loading: () => Center(child: CircularProgressIndicator()),
+          loading: () => Container(),
           error: (err, stack) => Center(child: Text("Error: $err")),
         ),
       ],
